@@ -50,8 +50,8 @@ contract DssEndTestSpell {
     DSPauseAbstract public pause;
     address         public action;
     bytes32         public tag;
-    uint256         public eta;
     bytes           public sig;
+    uint256         public eta;
 
     string constant public description =
         "End Cage Test Spell";

@@ -79,6 +79,14 @@ contract Stranger {
     }
 }
 
+struct BadSpells {
+    address badSpell;
+    address action;
+    bytes32 tag;
+    bytes   sig;
+    uint256 eta;
+}
+
 contract BadAction {
 
     EndLike private end;
@@ -92,25 +100,6 @@ contract BadAction {
     }
 }
 
-contract BadSpell {
-    DSPauseLike immutable pause;
-    address     immutable action;
-    bytes32     immutable tag;
-    bytes                 fax;
-    uint256     immutable eta;
-
-    constructor(address _pause, address _action, bytes32 _tag, bytes memory _fax, uint256 _eta) {
-        pause  = DSPauseLike(_pause);
-        action = _action;
-        tag    = _tag;
-        fax    = _fax;
-        eta    = _eta;
-    }
-
-    function cast() external {
-        pause.drop(action, tag, fax, eta);
-    }
-}
 
 contract ProtegoTest is Test {
 
@@ -297,35 +286,117 @@ contract ProtegoTest is Test {
         assertEq(id, protego.id(DSSpellLike(address(badSpell))));
     }
 
+    // Test drop of conformant spell
+    function testDropSpell() external {
+        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
 
+        assertTrue(address(badSpell) != address(0));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
 
+        vote(address(badSpell));
+        badSpell.schedule();
 
+        address        usr = badSpell.action();
+        bytes32        tag = badSpell.tag();
+        bytes   memory sig = badSpell.sig();
+        uint256        eta = badSpell.eta();
 
+        assertTrue(protego.planned(usr, tag, sig, eta));
 
-    // function testFail_call_from_unauthorized() public {
-    //     address      usr = target;
-    //     bytes32      tag = extcodehash(usr);
-    //     bytes memory fax = abi.encodeWithSignature("get()");
-    //     uint         eta = now + pause.delay();
+        Spell goodSpell = Spell(protego.deploy(DSSpellLike(address(badSpell))));
 
-    //     pause.plot(usr, tag, fax, eta);
-    //     hevm.warp(eta);
+        vote(address(goodSpell));
 
-    //     stranger.drop(pause, usr, tag, fax, eta);
-    // }
+        goodSpell.cast();
 
-    // function test_drop_plotted_plan() public {
-    //     address      usr = target;
-    //     bytes32      tag = extcodehash(usr);
-    //     bytes memory fax = abi.encodeWithSignature("get()");
-    //     uint         eta = now + pause.delay();
+        assertTrue(!protego.planned(usr, tag, sig, eta));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
+    }
 
-    //     pause.plot(usr, tag, fax, eta);
+    // Test drop of spell created with params
+    function testDropSpellParams() external {
+        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
 
-    //     hevm.warp(eta);
-    //     pause.drop(usr, tag, fax, eta);
+        assertTrue(address(badSpell) != address(0));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
 
-    //     bytes32 id = keccak256(abi.encode(usr, tag, fax, eta));
-    //     assertTrue(!pause.plans(id));
-    // }
+        vote(address(badSpell));
+        badSpell.schedule();
+
+        address        usr = badSpell.action();
+        bytes32        tag = badSpell.tag();
+        bytes   memory sig = badSpell.sig();
+        uint256        eta = badSpell.eta();
+
+        assertTrue(protego.planned(usr, tag, sig, eta));
+
+        Spell goodSpell = Spell(protego.deploy(usr, tag, sig, eta));
+
+        vote(address(goodSpell));
+
+        goodSpell.cast();
+
+        assertTrue(!protego.planned(usr, tag, sig, eta));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
+    }
+
+    // Test drop anything by lifting Protego to hat
+    function testDropAllSpells() external {
+
+        uint256 iter = 100;
+        BadSpells[] memory badSpells = new BadSpells[](iter);
+
+        for (uint i = 0; i < iter; i++) {
+            DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
+
+            vote(address(badSpell));
+
+            badSpell.schedule();
+
+            badSpells[i].badSpell = address(badSpell);
+
+            assertTrue(protego.planned(DSSpellLike(address(badSpell))));
+        }
+
+        vote(address(protego));
+
+        for (uint i = 0; i < iter; i++) {
+
+            protego.drop(DSSpellLike(badSpells[i].badSpell));
+
+            assertTrue(!protego.planned(DSSpellLike(badSpells[i].badSpell)));
+        }
+    }
+
+    // Test drop anything by lifting Protego to hat
+    function testDropAllSpellsParams() external {
+
+        uint256 iter = 100;
+        BadSpells[] memory badSpells = new BadSpells[](iter);
+
+        for (uint i = 0; i < iter; i++) {
+            DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
+
+            vote(address(badSpell));
+
+            badSpell.schedule();
+
+            badSpells[i].badSpell = address(badSpell);
+            badSpells[i].action   = badSpell.action();
+            badSpells[i].tag      = badSpell.tag();
+            badSpells[i].sig      = badSpell.sig();
+            badSpells[i].eta      = badSpell.eta();
+
+            assertTrue(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
+        }
+
+        vote(address(protego));
+
+        for (uint i = 0; i < iter; i++) {
+
+            protego.drop(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta);
+
+            assertTrue(!protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
+        }
+    }
 }

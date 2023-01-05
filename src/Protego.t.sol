@@ -381,7 +381,6 @@ contract ProtegoTest is Test {
 
             badSpell.schedule();
 
-            badSpells[i].badSpell = address(badSpell);
             badSpells[i].action   = badSpell.action();
             badSpells[i].tag      = badSpell.tag();
             badSpells[i].sig      = badSpell.sig();

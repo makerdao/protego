@@ -111,6 +111,6 @@ contract Protego {
     }
 
     function drop(DSSpellLike _spell) external {
-        DSPauseLike(pause).drop(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
+        drop(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
     }
 }

@@ -153,8 +153,6 @@ contract ProtegoTest is Test {
 
             address[] memory slate = new address[](1);
 
-            assertTrue(!DSSpellTester(spell_).done());
-
             slate[0] = spell_;
 
             chief.vote(slate);
@@ -228,39 +226,81 @@ contract ProtegoTest is Test {
         assertEq(protego.pause(), address(pause));
     }
 
-    function testDeploy() external {
-        address badSpell = address(new DssEndTestSpell(address(pause), address(end)));
+    function testDeploySpell() external {
+        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
 
-        assertTrue(badSpell != address(0));
-        assertTrue(!protego.planned(DSSpellLike(badSpell)));
+        assertTrue(address(badSpell) != address(0));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
 
+        address        usr = badSpell.action();
+        bytes32        tag = badSpell.tag();
+        bytes   memory sig = badSpell.sig();
+        uint256        eta = badSpell.eta();
 
+        address goodSpell = protego.deploy(DSSpellLike(address(badSpell)));
+
+        assertEq(protego.id(DSSpellLike(goodSpell)), protego.id(usr, tag, sig, eta));
+    }
+
+    function testDeploySpellParams() external {
+        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
+
+        assertTrue(address(badSpell) != address(0));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
+
+        address        usr = badSpell.action();
+        bytes32        tag = badSpell.tag();
+        bytes   memory sig = badSpell.sig();
+        uint256        eta = badSpell.eta();
+
+        address goodSpell = protego.deploy(usr, tag, sig, eta);
+
+        assertEq(protego.id(DSSpellLike(goodSpell)), protego.id(usr, tag, sig, eta));
+    }
+
+    function testPlanned() external {
+        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
+
+        assertTrue(address(badSpell) != address(0));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
+
+        vote(address(badSpell));
+        badSpell.schedule();
+
+        address        usr = badSpell.action();
+        bytes32        tag = badSpell.tag();
+        bytes   memory sig = badSpell.sig();
+        uint256        eta = badSpell.eta();
+
+        assertTrue(protego.planned(usr, tag, sig, eta));
+        assertTrue(protego.planned(DSSpellLike(address(badSpell))));
+        assertTrue(protego.planned(protego.id(DSSpellLike(address(badSpell)))));
+    }
+
+    function testId() external {
+        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
+
+        assertTrue(address(badSpell) != address(0));
+        assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
+
+        vote(address(badSpell));
+        badSpell.schedule();
+
+        address        usr = badSpell.action();
+        bytes32        tag = badSpell.tag();
+        bytes   memory sig = badSpell.sig();
+        uint256        eta = badSpell.eta();
+
+        bytes32        id  = keccak256(abi.encode(usr, tag, sig, eta));
+
+        assertEq(id, protego.id(usr, tag, sig, eta));
+        assertEq(id, protego.id(DSSpellLike(address(badSpell))));
     }
 
 
 
 
 
-    // function vote() private {
-    //     if (chief.hat() != address(spell)) {
-    //         vm.store(
-    //             address(gov),
-    //             keccak256(abi.encode(address(this), uint256(1))),
-    //             bytes32(uint256(999999999999 ether))
-    //         );
-    //         gov.approve(address(chief), uint256(-1));
-    //         chief.lock(_sub(gov.balanceOf(address(this)), 1 ether));
-
-    //         assertTrue(!spell.done());
-
-    //         address[] memory yays = new address[](1);
-    //         yays[0] = address(spell);
-
-    //         chief.vote(yays);
-    //         chief.lift(address(spell));
-    //     }
-    //     assertEq(chief.hat(), address(spell));
-    // }
 
     // function testFail_call_from_unauthorized() public {
     //     address      usr = target;

@@ -17,30 +17,30 @@ interface DSSpellLike {
 contract Spell {
     Protego            immutable protego;
     DSPauseLike public immutable pause;
-    address     public immutable usr;
+    address     public immutable action;
     bytes32     public immutable tag;
-    bytes       public           fax;
+    bytes       public           sig;
     uint256     public immutable eta;
 
     constructor(address _protego, address _pause, address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) {
         protego = Protego(_protego);
         pause   = DSPauseLike(_pause);
-        usr     = _usr;
+        action  = _usr;
         tag     = _tag;
-        fax     = _fax;
+        sig     = _fax;
         eta     = _eta;
     }
 
     function description() external view returns (bytes32) {
-        return protego.id(usr, tag, fax, eta);
+        return protego.id(action, tag, sig, eta);
     }
 
     function planned() external view returns (bool) {
-        return protego.planned(usr, tag, fax, eta);
+        return protego.planned(action, tag, sig, eta);
     }
 
     function cast() external {
-        pause.drop(usr, tag, fax, eta);
+        pause.drop(action, tag, sig, eta);
     }
 }
 

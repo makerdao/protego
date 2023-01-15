@@ -215,6 +215,7 @@ contract ProtegoTest is Test {
         assertEq(protego.pause(), address(pause));
     }
 
+    // Test creation of drop spell for conformant target spell
     function testDeploySpell() external {
         DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
 
@@ -231,6 +232,7 @@ contract ProtegoTest is Test {
         assertEq(protego.id(DSSpellLike(goodSpell)), protego.id(usr, tag, sig, eta));
     }
 
+    // Test creation of drop spell for nonconformant target spell
     function testDeploySpellParams() external {
         DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
 
@@ -313,7 +315,7 @@ contract ProtegoTest is Test {
         assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
     }
 
-    // Test drop of spell created with params
+    // Test drop of nonconformant spell
     function testDropSpellParams() external {
         DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), address(end));
 
@@ -340,7 +342,7 @@ contract ProtegoTest is Test {
         assertTrue(!protego.planned(DSSpellLike(address(badSpell))));
     }
 
-    // Test drop anything by lifting Protego to hat
+    // Test drop anything (conformant) by lifting Protego to hat
     function testDropAllSpells() external {
 
         uint256 iter = 100;
@@ -368,7 +370,7 @@ contract ProtegoTest is Test {
         }
     }
 
-    // Test drop anything by lifting Protego to hat
+    // Test drop anything (nonconformant) by lifting Protego to hat
     function testDropAllSpellsParams() external {
 
         uint256 iter = 100;

@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity ^0.8.16;
 
-import "forge-std/Test.sol";
+import {DssTest} from "dss-test/DssTest.sol";
 import {Protego, DropSpell, DsSpellLike} from "../src/Protego.sol";
 import {DssEndTestSpell} from "./test/TestSpell.sol";
 
@@ -74,7 +74,7 @@ contract MaliciousSpell {
     }
 }
 
-contract ProtegoTest is Test {
+contract ProtegoTest is DssTest {
     DsPauseLike pause;
     DsChiefLike chief;
     GemLike gov;

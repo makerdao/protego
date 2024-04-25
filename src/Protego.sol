@@ -27,7 +27,7 @@ interface DsSpellLike {
     function eta() external view returns (uint256);
 }
 
-/// @title A spell that drops any plans from `MCD_PAUSE` when is cast.
+/// @title A spell that drops a plan from `MCD_PAUSE` when is cast.
 contract DropSpell {
     /// @notice The Protego factory that deployed the spell.
     Protego public immutable protego;

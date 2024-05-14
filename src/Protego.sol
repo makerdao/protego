@@ -95,17 +95,7 @@ contract Protego {
     /// @param _spell The spell address.
     /// @return The `DropSpell` address.
     function deploy(DsSpellLike _spell) external returns (address) {
-        return _deploy(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
-    }
-
-    /// @notice Deploys a spell to drop a plan based on attributes.
-    /// @param _usr The address lifted to the hat.
-    /// @param _tag The tag identifying the address.
-    /// @param _fax The encoded call to be made in `_usr`.
-    /// @param _eta The expiry date.
-    /// @return The `DropSpell` address.
-    function deploy(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) external returns (address) {
-        return _deploy(_usr, _tag, _fax, _eta);
+        return deploy(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
     }
 
     /// @notice Deploys a spell to drop a plan based on attributes.
@@ -114,7 +104,7 @@ contract Protego {
     /// @param _fax The encoded call to be made in `_usr`.
     /// @param _eta The expiry date.
     /// @return _spell The `DropSpell` address.
-    function _deploy(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) internal returns (address _spell) {
+    function deploy(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public returns (address _spell) {
         _spell = address(new DropSpell(address(this), pause, _usr, _tag, _fax, _eta));
         emit Deploy(_spell);
     }

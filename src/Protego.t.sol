@@ -17,7 +17,8 @@ pragma solidity ^0.8.16;
 
 import {DssTest} from "dss-test/DssTest.sol";
 import {Protego, DropSpell, DsSpellLike} from "../src/Protego.sol";
-import {DssEndTestSpell} from "./test/TestSpell.sol";
+import {ConformingSpell} from "./test/ConformingSpell.sol";
+import {NonConformingSpell} from "./test/NonConformingSpell.sol";
 
 interface ChainlogLike {
     function getAddress(bytes32) external view returns (address);
@@ -54,50 +55,30 @@ struct BadSpells {
     uint256 eta;
 }
 
-contract MaliciousSpell {
-    DsPauseLike public immutable pause;
-
-    constructor(address pause_) {
-        pause = DsPauseLike(pause_);
-    }
-
-    function plot(address usr, bytes32 tag, bytes memory fax, uint256 eta) public {
-        pause.plot(usr, tag, fax, eta);
-    }
-
-    function drop(address usr, bytes32 tag, bytes memory fax, uint256 eta) public {
-        pause.drop(usr, tag, fax, eta);
-    }
-
-    function exec(address usr, bytes32 tag, bytes memory fax, uint256 eta) public returns (bytes memory) {
-        return pause.exec(usr, tag, fax, eta);
-    }
-}
-
 contract ProtegoTest is DssTest {
-    DsPauseLike pause;
     DsChiefLike chief;
     GemLike gov;
     Protego protego;
+    address pause;
     address end;
 
     function setUp() public {
         vm.createSelectFork("mainnet");
 
         ChainlogLike chainlog = ChainlogLike(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
-        pause = DsPauseLike(chainlog.getAddress("MCD_PAUSE"));
         chief = DsChiefLike(chainlog.getAddress("MCD_ADM"));
         gov = GemLike(chief.GOV());
-        protego = new Protego(address(pause));
+        pause = chainlog.getAddress("MCD_PAUSE");
+        protego = new Protego(pause);
         end = chainlog.getAddress("MCD_END");
     }
 
     function testPause() public view {
-        assertEq(protego.pause(), address(pause));
+        assertEq(protego.pause(), pause);
     }
 
     function testDeploySpell() public {
-        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), end);
+        ConformingSpell badSpell = new ConformingSpell(pause, end);
 
         assertFalse(protego.planned(DsSpellLike(address(badSpell))));
 
@@ -114,7 +95,7 @@ contract ProtegoTest is DssTest {
     }
 
     function testDeploySpellParams() public {
-        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), end);
+        ConformingSpell badSpell = new ConformingSpell(pause, end);
 
         assertFalse(protego.planned(DsSpellLike(address(badSpell))));
 
@@ -131,7 +112,7 @@ contract ProtegoTest is DssTest {
     }
 
     function testPlanned() public {
-        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), end);
+        ConformingSpell badSpell = new ConformingSpell(pause, end);
 
         assertFalse(protego.planned(DsSpellLike(address(badSpell))), "Spell already planned");
 
@@ -149,7 +130,7 @@ contract ProtegoTest is DssTest {
     }
 
     function testId() public {
-        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), end);
+        ConformingSpell badSpell = new ConformingSpell(pause, end);
 
         address usr = badSpell.action();
         bytes32 tag = badSpell.tag();
@@ -164,7 +145,7 @@ contract ProtegoTest is DssTest {
 
     // Test drop of conformant spell
     function testDropSpell() public {
-        DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), end);
+        ConformingSpell badSpell = new ConformingSpell(pause, end);
 
         assertFalse(protego.planned(DsSpellLike(address(badSpell))), "Spell already planned");
 
@@ -193,7 +174,7 @@ contract ProtegoTest is DssTest {
         bytes memory sig = abi.encodeWithSignature("destroy(bool)", true);
         uint256 eta = block.timestamp + 1000 days;
 
-        MaliciousSpell badSpell = new MaliciousSpell(address(pause));
+        NonConformingSpell badSpell = new NonConformingSpell(pause);
 
         assertFalse(protego.planned(usr, tag, sig, eta), "Spell already planned");
 
@@ -215,7 +196,7 @@ contract ProtegoTest is DssTest {
         BadSpells[] memory badSpells = new BadSpells[](iter);
 
         for (uint256 i = 0; i < iter; i++) {
-            DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), end);
+            ConformingSpell badSpell = new ConformingSpell(pause, end);
             _vote(address(badSpell));
             badSpell.schedule();
 
@@ -241,7 +222,7 @@ contract ProtegoTest is DssTest {
         BadSpells[] memory badSpells = new BadSpells[](iter);
 
         for (uint256 i = 0; i < iter; i++) {
-            DssEndTestSpell badSpell = new DssEndTestSpell(address(pause), end);
+            ConformingSpell badSpell = new ConformingSpell(pause, end);
             _vote(address(badSpell));
             badSpell.schedule();
 

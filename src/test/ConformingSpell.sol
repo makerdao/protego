@@ -37,7 +37,7 @@ contract SpellAction {
     }
 }
 
-contract DssEndTestSpell {
+contract ConformingSpell {
     DsPauseLike public pause;
     address public action;
     bytes32 public tag;

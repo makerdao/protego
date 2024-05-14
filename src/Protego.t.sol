@@ -214,6 +214,11 @@ contract ProtegoTest is DssTest {
 
             assertFalse(protego.planned(DsSpellLike(badSpells[i].badSpell)));
         }
+
+        // After Protego loses the hat, it can no longer drop spells
+        _vote(address(0));
+        vm.expectRevert();
+        protego.drop(DsSpellLike(badSpells[0].badSpell));
     }
 
     // Test drop anything by lifting Protego to hat
@@ -243,6 +248,11 @@ contract ProtegoTest is DssTest {
 
             assertFalse(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
         }
+
+        // After Protego loses the hat, it can no longer drop spells
+        _vote(address(0));
+        vm.expectRevert();
+        protego.drop(DsSpellLike(badSpells[0].badSpell));
     }
 
     function _vote(address spell_) internal {

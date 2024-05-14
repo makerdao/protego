@@ -15,6 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity ^0.8.16;
 
+import {EmergencyDropSpell} from "./EmergencyDropSpell.sol";
+
 interface DsPauseLike {
     function plans(bytes32) external view returns (bool);
     function drop(address, bytes32, bytes calldata, uint256) external;
@@ -27,59 +29,13 @@ interface DsSpellLike {
     function eta() external view returns (uint256);
 }
 
-/// @title A spell that drops a plan from `MCD_PAUSE` when is cast.
-contract DropSpell {
-    /// @notice The Protego factory that deployed the spell.
-    Protego public immutable protego;
-    /// @notice The MCD_PAUSE instance.
-    DsPauseLike public immutable pause;
-    /// @notice The original spell action address.
-    address public immutable action;
-    /// @notice The original spell action tag (i.e.: `extcodehash`).
-    bytes32 public immutable tag;
-    /// @notice The original spell expiry time.
-    uint256 public immutable eta;
-    /// @notice The original spell encoded call.
-    bytes public sig;
-
-    /// @param _protego The Protego factory that deployed the spell.
-    /// @param _pause The MCD_PAUSE instance.
-    /// @param _usr The original spell action address.
-    /// @param _tag The original spell action tag (i.e.: `extcodehash`).
-    /// @param _fax The original spell encoded call.
-    /// @param _eta The original spell expiry time.
-    constructor(address _protego, address _pause, address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) {
-        protego = Protego(_protego);
-        pause = DsPauseLike(_pause);
-        action = _usr;
-        tag = _tag;
-        sig = _fax;
-        eta = _eta;
-    }
-
-    /// @notice Returns the description of the spell in the format "MakerDAO Drop Spell: <ID>"
-    function description() external view returns (string memory) {
-        return string(abi.encodePacked("MakerDAO Drop Spell: ", protego.id(action, tag, sig, eta)));
-    }
-
-    /// @notice Returns whether the original spell has been planned or not.
-    function planned() external view returns (bool) {
-        return protego.planned(action, tag, sig, eta);
-    }
-
-    /// @notice Drops the original spell.
-    function cast() external {
-        pause.drop(action, tag, sig, eta);
-    }
-}
-
 /// @title Protego: permisionlessly deploy spells to drop any plan in `DsPause`-like contracts.
 contract Protego {
     /// @notice A reference to the DsPause contract.
     address public immutable pause;
 
-    /// @notice A new `DropSpell` instance was deployed.
-    /// @param dropSpell The new `DropSpell` address.
+    /// @notice A new `EmergencyDropSpell` instance was deployed.
+    /// @param dropSpell The new `EmergencyDropSpell` address.
     event Deploy(address dropSpell);
 
     /// @notice A spell plan was dropped.
@@ -93,7 +49,7 @@ contract Protego {
 
     /// @notice Deploys a spell to drop a conformant `DssSpell`
     /// @param _spell The spell address.
-    /// @return The `DropSpell` address.
+    /// @return The `EmergencyDropSpell` address.
     function deploy(DsSpellLike _spell) external returns (address) {
         return deploy(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
     }
@@ -103,9 +59,9 @@ contract Protego {
     /// @param _tag The tag identifying the address.
     /// @param _fax The encoded call to be made in `_usr`.
     /// @param _eta The expiry date.
-    /// @return _spell The `DropSpell` address.
+    /// @return _spell The `EmergencyDropSpell` address.
     function deploy(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public returns (address _spell) {
-        _spell = address(new DropSpell(address(this), pause, _usr, _tag, _fax, _eta));
+        _spell = address(new EmergencyDropSpell(address(this), pause, _usr, _tag, _fax, _eta));
         emit Deploy(_spell);
     }
 

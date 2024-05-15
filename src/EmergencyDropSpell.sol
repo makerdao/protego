@@ -43,7 +43,6 @@ interface EmergencySpellLike {
 
 /// @title A spell that drops a plan from `MCD_PAUSE` when is cast.
 contract EmergencyDropSpell is EmergencySpellLike {
-    bool public constant done = false;
     bool public constant officeHours = false;
     uint256 public constant expiration = type(uint256).max;
     address public constant log = address(0);
@@ -82,13 +81,18 @@ contract EmergencyDropSpell is EmergencySpellLike {
     }
 
     /// @notice Returns whether the original spell has been planned or not.
-    function planned() external view returns (bool) {
+    function planned() public view returns (bool) {
         return protego.planned(action, tag, sig, eta);
     }
 
     /// @notice Drops the original spell.
     function schedule() external {
         pause.drop(action, tag, sig, eta);
+    }
+
+    /// @notice Returns whether the original spell has been dropped or not.
+    function done() external view returns (bool) {
+        return !planned();
     }
 
     /// @notice No-op

@@ -16,7 +16,7 @@
 pragma solidity ^0.8.16;
 
 import {DssTest} from "dss-test/DssTest.sol";
-import {Protego, EmergencyDropSpell, DsSpellLike} from "../src/Protego.sol";
+import {Protego, EmergencyDropSpell} from "../src/Protego.sol";
 import {ConformingSpell} from "./test/ConformingSpell.sol";
 import {NonConformingSpell} from "./test/NonConformingSpell.sol";
 
@@ -137,12 +137,15 @@ contract ProtegoTest is DssTest {
         _vote(address(badSpell));
         badSpell.plot(usr, tag, sig, eta);
 
-        assertTrue(protego.planned(usr, tag, sig, eta), "Spell not planned");
-
         EmergencyDropSpell goodSpell = EmergencyDropSpell(protego.deploy(usr, tag, sig, eta));
+
+        assertTrue(protego.planned(usr, tag, sig, eta), "Before drop spell: not planned");
+        assertFalse(goodSpell.done(), "Before drop spell: already done");
+
         _vote(address(goodSpell));
         goodSpell.schedule();
 
+        assertTrue(goodSpell.done(), "After drop spell: not done");
         assertFalse(protego.planned(usr, tag, sig, eta), "After drop spell: spell still planned");
     }
 

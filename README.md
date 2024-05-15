@@ -13,7 +13,7 @@ permissionlessly drop any scheduled plan.
   corresponding `plan`, `usr`, `tag`, `fax` and `eta` values respectively. Bad actors could potentially manipulate the
   return values of these functions such that they are not equal, which would result in a non-conforming spell.
 - Users interacting with `Protego` should **always** assume the spell they want to drop is non-conforming and fetch the
-    parameters directly from the logs created by [`pause.plot()`](https://etherscan.deth.net/address/0xbe286431454714f511008713973d3b053a2d38f3#L189-L203)
+  parameters directly from the logs created by [`pause.plot()`](https://etherscan.deth.net/address/0xbe286431454714f511008713973d3b053a2d38f3#L189-L203)
 
 ## Usage
 

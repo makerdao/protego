@@ -80,58 +80,39 @@ contract ProtegoTest is DssTest {
     function testDeploySpell() public {
         ConformingSpell badSpell = new ConformingSpell(pause, end);
 
-        assertFalse(protego.planned(DsSpellLike(address(badSpell))));
-
-        address usr = badSpell.action();
-        bytes32 tag = badSpell.tag();
-        bytes memory sig = badSpell.sig();
-        uint256 eta = badSpell.eta();
+        assertFalse(
+            protego.planned(badSpell.action(), badSpell.tag(), badSpell.sig(), badSpell.eta()),
+            "Spell already planned for params"
+        );
 
         vm.expectEmit(true, true, true, true);
         emit Deploy(vm.computeCreateAddress(address(protego), vm.getNonce(address(protego))));
-        address goodSpell = protego.deploy(DsSpellLike(address(badSpell)));
-
-        assertEq(protego.id(DsSpellLike(goodSpell)), protego.id(usr, tag, sig, eta));
-    }
-
-    function testDeploySpellParams() public {
-        ConformingSpell badSpell = new ConformingSpell(pause, end);
-
-        assertFalse(protego.planned(DsSpellLike(address(badSpell))));
-
-        address usr = badSpell.action();
-        bytes32 tag = badSpell.tag();
-        bytes memory sig = badSpell.sig();
-        uint256 eta = badSpell.eta();
-
-        vm.expectEmit(true, true, true, true);
-        emit Deploy(vm.computeCreateAddress(address(protego), vm.getNonce(address(protego))));
-        address goodSpell = protego.deploy(usr, tag, sig, eta);
-
-        assertEq(protego.id(DsSpellLike(goodSpell)), protego.id(usr, tag, sig, eta));
+        protego.deploy(badSpell.action(), badSpell.tag(), badSpell.sig(), badSpell.eta());
     }
 
     function testPlanned() public {
         ConformingSpell badSpell = new ConformingSpell(pause, end);
 
-        assertFalse(protego.planned(DsSpellLike(address(badSpell))), "Spell already planned");
+        assertFalse(
+            protego.planned(badSpell.action(), badSpell.tag(), badSpell.sig(), badSpell.eta()),
+            "Spell already planned for params"
+        );
 
         _vote(address(badSpell));
         badSpell.schedule();
 
-        address usr = badSpell.action();
-        bytes32 tag = badSpell.tag();
-        bytes memory sig = badSpell.sig();
-        uint256 eta = badSpell.eta();
-
-        assertTrue(protego.planned(usr, tag, sig, eta), "Planned failed for params");
-        assertTrue(protego.planned(DsSpellLike(address(badSpell))), "Planned failed for address");
-        assertTrue(protego.planned(protego.id(DsSpellLike(address(badSpell)))), "Planned failed for id");
+        assertTrue(
+            protego.planned(badSpell.action(), badSpell.tag(), badSpell.sig(), badSpell.eta()),
+            "Planned failed for params"
+        );
+        assertTrue(
+            protego.planned(protego.id(badSpell.action(), badSpell.tag(), badSpell.sig(), badSpell.eta())),
+            "Planned failed for id"
+        );
     }
 
     function testId() public {
         ConformingSpell badSpell = new ConformingSpell(pause, end);
-
         address usr = badSpell.action();
         bytes32 tag = badSpell.tag();
         bytes memory sig = badSpell.sig();
@@ -140,31 +121,6 @@ contract ProtegoTest is DssTest {
         bytes32 id = keccak256(abi.encode(usr, tag, sig, eta));
 
         assertEq(id, protego.id(usr, tag, sig, eta), "Invalid id from params");
-        assertEq(id, protego.id(DsSpellLike(address(badSpell))), "Invalid id from spell");
-    }
-
-    // Test drop of conformant spell
-    function testDropSpell() public {
-        ConformingSpell badSpell = new ConformingSpell(pause, end);
-
-        assertFalse(protego.planned(DsSpellLike(address(badSpell))), "Spell already planned");
-
-        _vote(address(badSpell));
-        badSpell.schedule();
-
-        address usr = badSpell.action();
-        bytes32 tag = badSpell.tag();
-        bytes memory sig = badSpell.sig();
-        uint256 eta = badSpell.eta();
-
-        assertTrue(protego.planned(usr, tag, sig, eta));
-
-        EmergencyDropSpell goodSpell = EmergencyDropSpell(protego.deploy(DsSpellLike(address(badSpell))));
-        _vote(address(goodSpell));
-        goodSpell.schedule();
-
-        assertFalse(protego.planned(usr, tag, sig, eta), "After drop spell: spell still planned (params)");
-        assertFalse(protego.planned(DsSpellLike(address(badSpell))), "After drop spell: spell still planned (address)");
     }
 
     // Test drop of spell created with params
@@ -188,37 +144,6 @@ contract ProtegoTest is DssTest {
         goodSpell.schedule();
 
         assertFalse(protego.planned(usr, tag, sig, eta), "After drop spell: spell still planned");
-    }
-
-    // Test drop anything by lifting Protego to hat
-    function testDropAllSpells() public {
-        uint256 iter = 10;
-        BadSpells[] memory badSpells = new BadSpells[](iter);
-
-        for (uint256 i = 0; i < iter; i++) {
-            ConformingSpell badSpell = new ConformingSpell(pause, end);
-            _vote(address(badSpell));
-            badSpell.schedule();
-
-            badSpells[i].badSpell = address(badSpell);
-
-            assertTrue(protego.planned(DsSpellLike(address(badSpell))));
-        }
-
-        _vote(address(protego));
-
-        for (uint256 i = 0; i < iter; i++) {
-            vm.expectEmit(true, true, true, true);
-            emit Drop(protego.id(DsSpellLike(badSpells[i].badSpell)));
-            protego.drop(DsSpellLike(badSpells[i].badSpell));
-
-            assertFalse(protego.planned(DsSpellLike(badSpells[i].badSpell)));
-        }
-
-        // After Protego loses the hat, it can no longer drop spells
-        _vote(address(0));
-        vm.expectRevert();
-        protego.drop(DsSpellLike(badSpells[0].badSpell));
     }
 
     // Test drop anything by lifting Protego to hat
@@ -252,7 +177,7 @@ contract ProtegoTest is DssTest {
         // After Protego loses the hat, it can no longer drop spells
         _vote(address(0));
         vm.expectRevert();
-        protego.drop(DsSpellLike(badSpells[0].badSpell));
+        protego.drop(badSpells[0].action, badSpells[0].tag, badSpells[0].sig, badSpells[0].eta);
     }
 
     function _vote(address spell_) internal {

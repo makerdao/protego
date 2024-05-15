@@ -47,13 +47,6 @@ contract Protego {
         pause = _pause;
     }
 
-    /// @notice Deploys a spell to drop a conformant `DssSpell`
-    /// @param _spell The spell address.
-    /// @return The `EmergencyDropSpell` address.
-    function deploy(DsSpellLike _spell) external returns (address) {
-        return deploy(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
-    }
-
     /// @notice Deploys a spell to drop a plan based on attributes.
     /// @param _usr The address lifted to the hat.
     /// @param _tag The tag identifying the address.
@@ -74,12 +67,6 @@ contract Protego {
         return keccak256(abi.encode(_usr, _tag, _fax, _eta));
     }
 
-    /// @notice Calculates the id of a conformant `DssSpell`.
-    /// @param _spell The spell address.
-    function id(DsSpellLike _spell) public view returns (bytes32) {
-        return id(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
-    }
-
     /// @notice Returns whether a plan matching the set of attributes is currently planned.
     /// @param _usr The address lifted to the hat.
     /// @param _tag The tag identifying the address.
@@ -89,23 +76,17 @@ contract Protego {
         return planned(id(_usr, _tag, _fax, _eta));
     }
 
-    /// @notice Returns whether aspell is planned or not.
-    /// @param _spell The spell address.
-    function planned(DsSpellLike _spell) external view returns (bool) {
-        return planned(id(_spell));
-    }
-
     /// @notice Returns whether an id is planned or not.
     /// @param _id The ide of the plan.
     function planned(bytes32 _id) public view returns (bool) {
         return DsPauseLike(pause).plans(_id);
     }
 
-    /// @notice Permissionlessly drop anything.
-    /// @dev In some cases, due to a governance attack or other unforseen causes, it may be necessary to block any spell
-    ///      that is entered into the pause proxy.
-    ///      In this extreme case, the system can be protected during the pause delay by lifting the Protego contract to
-    ///      the hat role, which will allow any user to permissionlessly drop any id from the pause.
+    /// @notice Permissionlessly drop anything that has been planned on the pause.
+    /// @dev In some cases, due to a faulty spell being voted, a governance attack or other unforseen causes, it may be
+    ///      necessary to block any spell that is entered into the pause proxy.
+    ///      In this extreme case, the system can be protected during the pause delay by lifting the Protego contract
+    ///      to the hat role, which will allow any user to permissionlessly drop any id from the pause.
     ///      This function is expected to revert if it does not have the authority to perform this function.
     /// @param _usr The address lifted to the hat.
     /// @param _tag The tag identifying the address.
@@ -114,16 +95,5 @@ contract Protego {
     function drop(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public {
         DsPauseLike(pause).drop(_usr, _tag, _fax, _eta);
         emit Drop(id(_usr, _tag, _fax, _eta));
-    }
-
-    /// @notice Permissionlessly drop a conformat spell.
-    /// @dev In some cases, due to a governance attack or other unforseen causes, it may be necessary to block any spell
-    ///      that is entered into the pause proxy.
-    ///      In this extreme case, the system can be protected during the pause delay by lifting the Protego contract to
-    ///      the hat role, which will allow any user to permissionlessly drop any id from the pause.
-    ///      This function is expected to revert if it does not have the authority to perform this function.
-    /// @param _spell The address of the spell lifted to the hat.
-    function drop(DsSpellLike _spell) external {
-        drop(_spell.action(), _spell.tag(), _spell.sig(), _spell.eta());
     }
 }

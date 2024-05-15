@@ -22,13 +22,6 @@ interface DsPauseLike {
     function drop(address, bytes32, bytes calldata, uint256) external;
 }
 
-interface DsSpellLike {
-    function action() external view returns (address);
-    function tag() external view returns (bytes32);
-    function sig() external view returns (bytes memory);
-    function eta() external view returns (uint256);
-}
-
 /// @title Protego: permisionlessly deploy spells to drop any plan in `DsPause`-like contracts.
 contract Protego {
     /// @notice A reference to the DsPause contract.
@@ -48,7 +41,7 @@ contract Protego {
     }
 
     /// @notice Deploys a spell to drop a plan based on attributes.
-    /// @param _usr The address lifted to the hat.
+    /// @param _usr The address of the scheduled spell.
     /// @param _tag The tag identifying the address.
     /// @param _fax The encoded call to be made in `_usr`.
     /// @param _eta The expiry date.
@@ -59,7 +52,7 @@ contract Protego {
     }
 
     /// @notice Calculates the id for a set of attributes.
-    /// @param _usr The address lifted to the hat.
+    /// @param _usr The address of the scheduled spell.
     /// @param _tag The tag identifying the address.
     /// @param _fax The encoded call to be made in `_usr`.
     /// @param _eta The expiry date.
@@ -68,7 +61,7 @@ contract Protego {
     }
 
     /// @notice Returns whether a plan matching the set of attributes is currently planned.
-    /// @param _usr The address lifted to the hat.
+    /// @param _usr The address of the scheduled spell.
     /// @param _tag The tag identifying the address.
     /// @param _fax The encoded call to be made in `_usr`.
     /// @param _eta The expiry date.
@@ -88,7 +81,7 @@ contract Protego {
     ///      In this extreme case, the system can be protected during the pause delay by lifting the Protego contract
     ///      to the hat role, which will allow any user to permissionlessly drop any id from the pause.
     ///      This function is expected to revert if it does not have the authority to perform this function.
-    /// @param _usr The address lifted to the hat.
+    /// @param _usr The address of the scheduled spell.
     /// @param _tag The tag identifying the address.
     /// @param _fax The encoded call to be made in `_usr`.
     /// @param _eta The expiration time.

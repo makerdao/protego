@@ -17,7 +17,7 @@ permissionlessly drop any scheduled plan.
 
 ## Usage
 
-### Create a single drop spell
+### 1. Create a single drop spell
 
 ```solidity
 deploy(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta)(address)
@@ -27,7 +27,7 @@ If there is sufficient ecosystem interest to cancel (`drop`) a particular schedu
 Protego contains a factory to permissionlessly create a spell ("Emergency Drop Spell"), which &ndash; upon being given
 the hat &ndash; is able to drop the targeted plan in `MCD_PAUSE`.
 
-### Enable permissionless dropping of any plan
+### 2. Enable permissionless dropping of any plan
 
 ```solidity
 drop(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta)
@@ -37,11 +37,11 @@ In case of a governance attack, numerous spells could be created and planned by 
 single hat spell can `drop` them. To mitigate this risk, the `Protego` contract itself can be given the hat, which
 allows any user to permissionlessly drop any plan.
 
-Used for conforming spells, will **immediately** drop a plan in `MCD_PAUSE` using the values the spell provides.
+It will **immediately** drop a plan in `MCD_PAUSE` using the parameters provided.
 
-### Additional functions
+## Additional functions
 
-#### `id()`
+### `id()`
 
 ```solidity
 id(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta)(bytes32)
@@ -49,7 +49,7 @@ id(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta)(bytes32)
 
 Returns the `bytes32` id of a given plan using the same method that `hash` does in `MCD_PAUSE`.
 
-#### `planned()`
+### `planned()`
 
 ```solidity
 planned(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta)(bool)

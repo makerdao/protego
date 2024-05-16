@@ -47,7 +47,7 @@ contract Protego {
     /// @param _eta The expiry date.
     /// @return _spell The `EmergencyDropSpell` address.
     function deploy(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public returns (address _spell) {
-        _spell = address(new EmergencyDropSpell(address(this), pause, _usr, _tag, _fax, _eta));
+        _spell = address(new EmergencyDropSpell(address(this), _usr, _tag, _fax, _eta));
         emit Deploy(_spell);
     }
 

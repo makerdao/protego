@@ -18,6 +18,7 @@ pragma solidity ^0.8.16;
 interface ProtegoLike {
     function id(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) external view returns (bytes32);
     function planned(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) external view returns (bool);
+    function pause() external view returns (address);
 }
 
 interface DsPauseLike {
@@ -43,9 +44,13 @@ interface EmergencySpellLike {
 
 /// @title A spell that drops a plan from `MCD_PAUSE` when is cast.
 contract EmergencyDropSpell is EmergencySpellLike {
+    /// @notice The Chainlog contract address.
+    /// @dev Not used in this contract. Declared to keep compatibility with `DssExec`.
+    address public constant log = 0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F;
+    /// @notice By definition, office hours are not applicable to emergency spells.
     bool public constant officeHours = false;
+    /// @notice Emergency spells should not expire.
     uint256 public constant expiration = type(uint256).max;
-    address public constant log = address(0);
 
     /// @notice The Protego factory that deployed the spell.
     ProtegoLike public immutable protego;
@@ -59,35 +64,45 @@ contract EmergencyDropSpell is EmergencySpellLike {
     uint256 public immutable eta;
     /// @notice The original spell encoded call.
     bytes public sig;
+    /// @notice Emergency spells can be cast immediately after deployed.
+    /// @dev Declared to keep compatibility with `DssExec`.
+    uint256 public immutable nextCastTime = block.timestamp;
+
+    /// @notice Drop have been called.
+    event Drop();
 
     /// @param _protego The Protego factory that deployed the spell.
-    /// @param _pause The MCD_PAUSE instance.
     /// @param _usr The original spell action address.
     /// @param _tag The original spell action tag (i.e.: `extcodehash`).
     /// @param _fax The original spell encoded call.
     /// @param _eta The original spell expiry time.
-    constructor(address _protego, address _pause, address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) {
+    constructor(address _protego, address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) {
         protego = ProtegoLike(_protego);
-        pause = DsPauseLike(_pause);
+        pause = DsPauseLike(ProtegoLike(_protego).pause());
         action = _usr;
         tag = _tag;
         sig = _fax;
         eta = _eta;
     }
 
-    /// @notice Returns the description of the spell in the format "MakerDAO Drop Spell: <ID>"
-    function description() external view returns (string memory) {
-        return string(abi.encodePacked("MakerDAO Drop Spell: ", protego.id(action, tag, sig, eta)));
-    }
-
-    /// @notice Returns whether the original spell has been planned or not.
-    function planned() public view returns (bool) {
-        return protego.planned(action, tag, sig, eta);
+    /// @notice Alias for `drop`.
+    /// @dev for compatibility with `DssExec`.
+    function schedule() external {
+        drop();
     }
 
     /// @notice Drops the original spell.
-    function schedule() external {
+    function drop() public {
         pause.drop(action, tag, sig, eta);
+        emit Drop();
+    }
+
+    /// @notice No-op.
+    function cast() external {}
+
+    /// @notice Returns the description of the spell in the format "MakerDAO Drop Spell: <ID>"
+    function description() external view returns (string memory) {
+        return string(abi.encodePacked("MakerDAO Drop Spell: ", protego.id(action, tag, sig, eta)));
     }
 
     /// @notice Returns whether the original spell has been dropped or not.
@@ -95,12 +110,11 @@ contract EmergencyDropSpell is EmergencySpellLike {
         return !planned();
     }
 
-    /// @notice No-op
-    function cast() external {}
-
-    function nextCastTime() external view returns (uint256) {
-        return block.timestamp;
+    /// @notice Returns whether the original spell has been planned or not.
+    function planned() public view returns (bool) {
+        return protego.planned(action, tag, sig, eta);
     }
+
 }
 
 

@@ -71,11 +71,13 @@ contract EmergencyDropSpell is EmergencySpellLike {
     /// @notice Drop have been called.
     event Drop();
 
-    /// @param _protego The Protego factory that deployed the spell.
-    /// @param _usr The original spell action address.
-    /// @param _tag The original spell action tag (i.e.: `extcodehash`).
-    /// @param _fax The original spell encoded call.
-    /// @param _eta The original spell expiry time.
+    /**
+     * @param _protego The Protego factory that deployed the spell.
+     * @param _usr The original spell action address.
+     * @param _tag The original spell action tag (i.e.: `extcodehash`).
+     * @param _fax The original spell encoded call.
+     * @param _eta The original spell expiry time.
+     */
     constructor(address _protego, address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) {
         protego = ProtegoLike(_protego);
         pause = DsPauseLike(ProtegoLike(_protego).pause());
@@ -85,8 +87,10 @@ contract EmergencyDropSpell is EmergencySpellLike {
         eta = _eta;
     }
 
-    /// @notice Alias for `drop`.
-    /// @dev for compatibility with `DssExec`.
+    /**
+     * @notice Alias for `drop`.
+     * @dev for compatibility with `DssExec`.
+     */
     function schedule() external {
         drop();
     }
@@ -114,7 +118,4 @@ contract EmergencyDropSpell is EmergencySpellLike {
     function planned() public view returns (bool) {
         return protego.planned(action, tag, sig, eta);
     }
-
 }
-
-

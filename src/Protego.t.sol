@@ -179,7 +179,7 @@ contract ProtegoTest is DssTest {
 
         // After Protego loses the hat, it can no longer drop spells
         _vote(address(0));
-        vm.expectRevert();
+        vm.expectRevert("ds-auth-unauthorized");
         protego.drop(badSpells[0].action, badSpells[0].tag, badSpells[0].sig, badSpells[0].eta);
     }
 

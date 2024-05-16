@@ -32,10 +32,6 @@ contract NonConformingSpell {
         pause.plot(usr, tag, fax, eta);
     }
 
-    function drop(address usr, bytes32 tag, bytes memory fax, uint256 eta) public {
-        pause.drop(usr, tag, fax, eta);
-    }
-
     function exec(address usr, bytes32 tag, bytes memory fax, uint256 eta) public returns (bytes memory) {
         return pause.exec(usr, tag, fax, eta);
     }

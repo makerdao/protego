@@ -77,7 +77,7 @@ contract ProtegoTest is DssTest {
         assertEq(protego.pause(), pause);
     }
 
-    function testDeploySpell() public {
+    function testDeployDropSpell() public {
         ConformingSpell badSpell = new ConformingSpell(pause, end);
 
         assertFalse(

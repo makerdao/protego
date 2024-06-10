@@ -60,7 +60,7 @@ contract EmergencyDropSpell is EmergencySpellLike {
     address public immutable action;
     /// @notice The original spell action tag (i.e.: `extcodehash`).
     bytes32 public immutable tag;
-    /// @notice The original spell expiry time.
+    /// @notice The original spell earliest execution time.
     uint256 public immutable eta;
     /// @notice The original spell encoded call.
     bytes public sig;
@@ -76,7 +76,7 @@ contract EmergencyDropSpell is EmergencySpellLike {
      * @param _usr The original spell action address.
      * @param _tag The original spell action tag (i.e.: `extcodehash`).
      * @param _fax The original spell encoded call.
-     * @param _eta The original spell expiry time.
+     * @param _eta The original spell earliest execution time.
      */
     constructor(address _protego, address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) {
         protego = ProtegoLike(_protego);
@@ -109,12 +109,12 @@ contract EmergencyDropSpell is EmergencySpellLike {
         return string(abi.encodePacked("MakerDAO Drop Spell: ", protego.id(action, tag, sig, eta)));
     }
 
-    /// @notice Returns whether the original spell has been dropped or not.
+    /// @notice Returns true the original spell has been dropped or has never been planned.
     function done() external view returns (bool) {
         return !planned();
     }
 
-    /// @notice Returns whether the original spell has been planned or not.
+    /// @notice Returns whether the original spell is currently planned or not.
     function planned() public view returns (bool) {
         return protego.planned(action, tag, sig, eta);
     }

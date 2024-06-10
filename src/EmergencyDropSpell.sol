@@ -109,7 +109,7 @@ contract EmergencyDropSpell is EmergencySpellLike {
         return string(abi.encodePacked("MakerDAO Drop Spell: ", protego.id(action, tag, sig, eta)));
     }
 
-    /// @notice Returns true the original spell has been dropped or has never been planned.
+    /// @notice Returns true if the original spell has been dropped or has never been planned.
     function done() external view returns (bool) {
         return !planned();
     }

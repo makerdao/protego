@@ -49,7 +49,7 @@ contract Protego {
      * @param _usr The address of the scheduled spell.
      * @param _tag The tag identifying the address.
      * @param _fax The encoded call to be made in `_usr`.
-     * @param _eta The expiry date.
+     * @param _eta The earliest execution time.
      * @return _spell The `EmergencyDropSpell` address.
      */
     function deploy(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public returns (address _spell) {
@@ -62,7 +62,7 @@ contract Protego {
      * @param _usr The address of the scheduled spell.
      * @param _tag The tag identifying the address.
      * @param _fax The encoded call to be made in `_usr`.
-     * @param _eta The expiry date.
+     * @param _eta The earliest execution time.
      */
     function id(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public pure returns (bytes32) {
         return keccak256(abi.encode(_usr, _tag, _fax, _eta));
@@ -73,7 +73,7 @@ contract Protego {
      * @param _usr The address of the scheduled spell.
      * @param _tag The tag identifying the address.
      * @param _fax The encoded call to be made in `_usr`.
-     * @param _eta The expiry date.
+     * @param _eta The earliest execution time.
      */
     function planned(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) external view returns (bool) {
         return planned(id(_usr, _tag, _fax, _eta));

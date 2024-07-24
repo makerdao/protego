@@ -1,0 +1,13 @@
+{
+  "type": "module",
+  "scripts": {
+    "list": "node --no-warnings list-pause-plans",
+    "list-all": "node --no-warnings list-pause-plans -all",
+    "list-pending": "node --no-warnings list-pause-plans -pending"
+  },
+  "dependencies": {
+    "ethers": "^6.13.1",
+    "table": "^6.8.2",
+    "yargs": "^17.7.2"
+  }
+}

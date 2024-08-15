@@ -89,7 +89,7 @@ function processEvent(event, contract) {
     };
 }
 
-function prepareTableData(events, contract) {
+function prepareData(events, contract) {
     const decodedEvents = events.map(event => processEvent(event, contract));
 
     const tableData = [];
@@ -120,7 +120,6 @@ function prepareTableData(events, contract) {
         const etaB = BigInt(b[4]);
         return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
     });
-    tableData.unshift(["HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
 
     return tableData;
 }
@@ -131,7 +130,8 @@ async function main() {
         const pause = new ethers.Contract(MCD_PAUSE, pauseABI, provider);
 
         const events = await getFilteredEvents(pause);
-        let tableData = prepareTableData(events, pause);
+        let tableData = prepareData(events, pause);
+        tableData.unshift(["HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
 
         if (!argv.all && !argv.pending) {
             tableData = tableData.length > 21 ? tableData.slice(0, 21) : tableData;

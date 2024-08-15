@@ -136,7 +136,7 @@ async function main() {
         if (!argv.all && !argv.pending) {
             tableData = tableData.length > 21 ? tableData.slice(0, 21) : tableData;
         } else if (argv.pending) {
-            tableData = tableData.filter(row => row[6] === "pending" || row[0] === "HASH");
+            tableData = tableData.filter(row => row[6] === "PENDING" || row[0] === "HASH");
         }
 
         if (tableData.length === 1) {

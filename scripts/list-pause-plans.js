@@ -34,10 +34,10 @@ const MCD_PAUSE = "0xbE286431454714F511008713973d3B053A2d38f3";
 
 const tableConfig = {
     columns: {
-        0: { width: 66, wrapWord: true },
+        0: { width: 33, wrapWord: true },
         1: { width: 42, wrapWord: true },
-        2: { width: 66, wrapWord: true },
-        3: { width: 33, wrapWord: true },
+        2: { width: 33, wrapWord: true },
+        3: { width: 10, wrapWord: true },
         4: { width: 10, wrapWord: true },
         5: { width: 10, wrapWord: true },
         6: { width: 10, wrapWord: true }

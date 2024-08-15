@@ -71,8 +71,7 @@ function hash(params) {
 
 async function getFilteredEvents(contract) {
     try {
-        const events = await contract.queryFilter('*');
-        return events.filter(log => [PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC].includes(log.topics[0]));
+        return await contract.queryFilter([[PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC]]);
     } catch (error) {
         console.error("Error fetching filtered events:", error);
         throw error;

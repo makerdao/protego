@@ -55,8 +55,8 @@ npm run list-pending
 
 The script outputs a table with the plans' details:
 - HASH: Hash of the plan
-- USR: Address of the Spell
-- TAG: `extcodehash` from the address of the Spell
+- USR: Address of the `DssSpellAction` related to the Spell
+- TAG: `extcodehash` from the address of `DssSpellAction`
 - FAX: `callcode` to be used when calling the Spell
 - ETA: Timestamp of earliest execution time
 - STATUS: Status of the plan:

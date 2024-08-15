@@ -92,7 +92,7 @@ function processEvent(event, contract) {
 function prepareTableData(events, contract) {
     const decodedEvents = events.map(event => processEvent(event, contract));
 
-    let tableData = [["HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]];
+    const tableData = [];
     const hashMap = new Map();
 
     decodedEvents.forEach(event => {
@@ -115,6 +115,13 @@ function prepareTableData(events, contract) {
         }
     });
 
+    tableData.sort((a, b) => {
+        const etaA = BigInt(a[4]);
+        const etaB = BigInt(b[4]);
+        return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
+    });
+    tableData.unshift(["HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
+
     return tableData;
 }
 
@@ -127,7 +134,7 @@ async function main() {
         let tableData = prepareTableData(events, pause);
 
         if (!argv.all && !argv.pending) {
-            tableData = tableData.length > 21 ? [tableData[0], ...tableData.slice(-20)] : tableData;
+            tableData = tableData.length > 21 ? tableData.slice(0, 21) : tableData;
         } else if (argv.pending) {
             tableData = tableData.filter(row => row[6] === "pending" || row[0] === "HASH");
         }

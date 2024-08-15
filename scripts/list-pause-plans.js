@@ -34,10 +34,10 @@ const MCD_PAUSE = "0xbE286431454714F511008713973d3B053A2d38f3";
 
 const tableConfig = {
     columns: {
-        0: { width: 33, wrapWord: true },
-        1: { width: 42, wrapWord: true },
-        2: { width: 33, wrapWord: true },
-        3: { width: 10, wrapWord: true },
+        0: { width: 21, wrapWord: true },
+        1: { width: 33, wrapWord: true },
+        2: { width: 21, wrapWord: true },
+        3: { width: 33, wrapWord: true },
         4: { width: 10, wrapWord: true },
         5: { width: 10, wrapWord: true },
         6: { width: 10, wrapWord: true }
@@ -99,25 +99,25 @@ function prepareData(events, contract) {
         const planHash = event.planHash;
 
         if (event.topics[0] === PLOT_TOPIC) {
-            const row = [planHash, event.decodedCall.usr, event.decodedCall.tag, event.decodedCall.fax.trim(), event.decodedCall.eta, "PENDING"];
+            const row = [event.decoded.guy, planHash, event.decodedCall.usr, event.decodedCall.tag, event.decodedCall.fax.trim(), event.decodedCall.eta, "PENDING"];
             tableData.push(row);
             hashMap.set(planHash, row);
         } else if (event.topics[0] === EXEC_TOPIC) {
             const row = hashMap.get(planHash);
             if (row) {
-                row[5] = "EXECUTED";
+                row[6] = "EXECUTED";
             }
         } else if (event.topics[0] === DROP_TOPIC) {
             const row = hashMap.get(planHash);
             if (row) {
-                row[5] = "DROPPED";
+                row[6] = "DROPPED";
             }
         }
     });
 
     tableData.sort((a, b) => {
-        const etaA = BigInt(a[4]);
-        const etaB = BigInt(b[4]);
+        const etaA = BigInt(a[5]);
+        const etaB = BigInt(b[5]);
         return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
     });
 
@@ -131,12 +131,12 @@ async function main() {
 
         const events = await getFilteredEvents(pause);
         let tableData = prepareData(events, pause);
-        tableData.unshift(["HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
+        tableData.unshift(["SPELL", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
 
         if (!argv.all && !argv.pending) {
             tableData = tableData.length > 21 ? tableData.slice(0, 21) : tableData;
         } else if (argv.pending) {
-            tableData = tableData.filter(row => row[5] === "PENDING" || row[0] === "HASH");
+            tableData = tableData.filter(row => row[6] === "PENDING" || row[0] === "SPELL");
         }
 
         if (tableData.length === 1) {

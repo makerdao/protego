@@ -5,23 +5,17 @@ import { hideBin } from 'yargs/helpers';
 import pauseABI from './pause_abi.json' with { type: 'json' };
 
 const argv = yargs(hideBin(process.argv))
-    .option('all', {
-        alias: 'a',
-        type: 'boolean',
-        description: 'Show all plans',
-        default: false
-    })
     .option('pending', {
         alias: 'p',
         type: 'boolean',
         description: 'Show only pending plans',
         default: false
     })
-    .check(argv => {
-        if (argv.all && argv.pending) {
-            throw new Error("You cannot use --all and --pending together.");
-        }
-        return true;
+    .option('fromBlock', {
+        alias: 'b',
+        type: 'number',
+        description: 'Display spells from a given block',
+        default: 0
     })
     .help()
     .alias('help', 'h')
@@ -69,9 +63,9 @@ function hash(params) {
     return ethers.keccak256(encoded);
 }
 
-async function getFilteredEvents(contract) {
+async function getFilteredEvents(contract, fromBlock) {
     try {
-        return await contract.queryFilter([[PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC]]);
+        return await contract.queryFilter([[PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC]], fromBlock);
     } catch (error) {
         console.error("Error fetching filtered events:", error);
         throw error;
@@ -129,13 +123,11 @@ async function main() {
         const provider = getProvider();
         const pause = new ethers.Contract(MCD_PAUSE, pauseABI, provider);
 
-        const events = await getFilteredEvents(pause);
+        const events = await getFilteredEvents(pause, argv.fromBlock);
         let tableData = prepareData(events, pause);
         tableData.unshift(["SPELL", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
 
-        if (!argv.all && !argv.pending) {
-            tableData = tableData.length > 21 ? tableData.slice(0, 21) : tableData;
-        } else if (argv.pending) {
+        if (argv.pending) {
             tableData = tableData.filter(row => row[6] === "PENDING" || row[0] === "SPELL");
         }
 

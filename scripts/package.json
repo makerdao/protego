@@ -1,9 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "list": "node --no-warnings list-pause-plans",
-    "list-all": "node --no-warnings list-pause-plans -all",
-    "list-pending": "node --no-warnings list-pause-plans -pending"
+    "list": "node --no-warnings list-pause-plans --fromBlock",
+    "list-pending": "node --no-warnings list-pause-plans -pending --fromBlock"
   },
   "dependencies": {
     "ethers": "^6.13.1",

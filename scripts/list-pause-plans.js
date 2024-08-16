@@ -83,7 +83,7 @@ function processEvent(event, contract) {
     };
 }
 
-function prepareData(events, contract) {
+function prepareData(events, contract, filter) {
     const decodedEvents = events.map(event => processEvent(event, contract));
 
     const tableData = [];
@@ -115,7 +115,10 @@ function prepareData(events, contract) {
         return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
     });
 
-    return tableData;
+    if (filter)
+        return tableData.filter(row => row[6] === filter);
+    else
+        return tableData;
 }
 
 async function main() {
@@ -124,12 +127,9 @@ async function main() {
         const pause = new ethers.Contract(MCD_PAUSE, pauseABI, provider);
 
         const events = await getFilteredEvents(pause, argv.fromBlock);
-        let tableData = prepareData(events, pause);
-        tableData.unshift(["SPELL", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
+        let tableData = prepareData(events, pause, argv.pending ? "PENDING" : null);
 
-        if (argv.pending) {
-            tableData = tableData.filter(row => row[6] === "PENDING" || row[0] === "SPELL");
-        }
+        tableData.unshift(["SPELL", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
 
         if (tableData.length === 1) {
             console.log("No records to display.");

@@ -12,7 +12,7 @@ const argv = yargs(hideBin(process.argv))
         description: 'Show only pending plans',
         default: false
     })
-    .option('fromBlock', {
+    .option('from-block', {
         alias: 'b',
         type: 'number',
         description: 'Display spells from a given block',

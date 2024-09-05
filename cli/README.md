@@ -12,15 +12,18 @@ npm i
 
 List plans in `MCD_PAUSE` since block 16420000
 ```
-npm run list 16420000
+node list-pause-plans --from-block 16420000
 ```
 
 Pending plans in `MCD_PAUSE` since block 19420069
 ```
-npm run list-pending 19420069
+node list-pause-plans -pending --from-block 19420069
 ```
 
-If no block number is passed, the script will fetch all plans since block 0.
+### 3. Help
+```
+node list-pause-plans --help
+```
 
 ## Output
 

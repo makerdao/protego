@@ -18,7 +18,13 @@ const argv = yargs(hideBin(process.argv))
         description: 'Display spells from a given block',
         default: 0
     })
-    .help()
+    .option('eth-rpc-url', {
+        alias: 'e',
+        type: 'string',
+        description: 'Rpc URL - Falls back to ETH_RPC_URL env var, then to a public provider',
+        default: 0
+    })
+    .help(true)
     .alias('help', 'h')
     .argv;
 
@@ -37,9 +43,9 @@ const tableConfig = {
 };
 
 function getProvider() {
-    const url = process.env.ETH_RPC_URL || "mainnet";
-    if (!process.env.ETH_RPC_URL) {
-        console.warn("ETH_RPC_URL not set, falling back to a public RPC provider. For improved results set ETH_RPC_URL to a trusted node.");
+    const url = argv.ethRpcUrl || process.env.ETH_RPC_URL || "mainnet";
+    if (url == "mainnet") {
+        console.warn("Falling back to a public provider. For best experience set a custom RPC URL.");
     }
     return ethers.getDefaultProvider(url);
 }

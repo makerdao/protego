@@ -1,8 +1,10 @@
 {
   "type": "module",
+  "name": "protego-cli",
+  "version": "0.1.0",
   "scripts": {
-    "list": "node --no-warnings list-pause-plans --from-block",
-    "list-pending": "node --no-warnings list-pause-plans -pending --from-block"
+    "list": "node --no-warnings list-pause-plans",
+    "list-pending": "node --no-warnings list-pause-plans --pending"
   },
   "dependencies": {
     "ethers": "^6.13.1",

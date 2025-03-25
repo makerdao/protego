@@ -11,18 +11,27 @@ npm i
 ### 2. Run scripts
 
 List plans in `MCD_PAUSE` since block 16420000
+
 ```
-node list-pause-plans --from-block 16420000
+npm run list --from-block 16420000
+
+OR
+
+node list --from-block 16420000
 ```
 
 Pending plans in `MCD_PAUSE` since block 19420069
 ```
-node list-pause-plans -pending --from-block 19420069
+npm run list-pending --from-block 19420069
+
+OR
+
+node list --pending --from-block 19420069
 ```
 
 ### 3. Help
 ```
-node list-pause-plans --help
+node list --help
 ```
 
 ## Output

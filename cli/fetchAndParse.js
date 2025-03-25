@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
+import pauseABI from './pause_abi.json' with { type: 'json' };
 
+const MCD_PAUSE = "0xbE286431454714F511008713973d3B053A2d38f3";
 const PLOT_TOPIC = "0x46d2fbbb00000000000000000000000000000000000000000000000000000000";
 const EXEC_TOPIC = "0x168ccd6700000000000000000000000000000000000000000000000000000000";
 const DROP_TOPIC = "0x162c7de300000000000000000000000000000000000000000000000000000000";
@@ -21,7 +23,7 @@ function hash(params) {
     return ethers.keccak256(encoded);
 }
 
-export async function getFilteredEvents(contract, fromBlock) {
+async function fetchEvents(contract, fromBlock) {
     try {
         return await contract.queryFilter([[PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC]], fromBlock);
     } catch (error) {
@@ -41,40 +43,45 @@ function processEvent(event, contract) {
     };
 }
 
-export function prepareData(events, contract, filter) {
+function parseEvents(events, contract) {
     const decodedEvents = events.map(event => processEvent(event, contract));
 
-    const tableData = [];
+    const eventsList = [];
     const hashMap = new Map();
 
     decodedEvents.forEach(event => {
         const planHash = event.planHash;
 
         if (event.topics[0] === PLOT_TOPIC) {
-            const row = [event.decoded.guy, planHash, event.decodedCall.usr, event.decodedCall.tag, event.decodedCall.fax.trim(), event.decodedCall.eta, "PENDING"];
-            tableData.push(row);
-            hashMap.set(planHash, row);
+            const item = {
+                hash: planHash,
+                guy: event.decoded.guy,
+                usr: event.decodedCall.usr,
+                tag: event.decodedCall.tag,
+                fax: event.decodedCall.fax.trim(),
+                eta: event.decodedCall.eta,
+                status: "PENDING"
+            }
+            eventsList.push(item)
+            hashMap.set(planHash, item);
         } else if (event.topics[0] === EXEC_TOPIC) {
-            const row = hashMap.get(planHash);
-            if (row) {
-                row[6] = "EXECUTED";
+            const item = hashMap.get(planHash);
+            if (item) {
+                item.status = "EXECUTED";
             }
         } else if (event.topics[0] === DROP_TOPIC) {
-            const row = hashMap.get(planHash);
-            if (row) {
-                row[6] = "DROPPED";
+            const item = hashMap.get(planHash);
+            if (item) {
+                item.status = "DROPPED";
             }
         }
     });
 
-    tableData.sort((a, b) => {
-        const etaA = BigInt(a[5]);
-        const etaB = BigInt(b[5]);
-        return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
-    });
+    return eventsList;
+}
 
-    if (filter)
-        return tableData.filter(row => row[6] === filter);
-    else
-        return tableData;
+export async function fetchAndParseEvents(rpcUrl, fromBlock) {
+    const pause = new ethers.Contract(MCD_PAUSE, pauseABI, ethers.getDefaultProvider(rpcUrl));
+    const events = await fetchEvents(pause, fromBlock);
+    return parseEvents(events, pause);
 }

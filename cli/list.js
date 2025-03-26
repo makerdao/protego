@@ -1,14 +1,15 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { fetchAndParseEvents } from "./fetchAndParse.js";
+import { fetchPausePlans } from "./fetchPausePlans.js";
 import { createTable } from "./createTable.js";
 
 const argv = yargs(hideBin(process.argv))
-    .option('pending', {
-        alias: 'p',
-        type: 'boolean',
-        description: 'Show only pending plans',
-        default: false
+    .option('status', {
+        alias: 's',
+        type: 'string',
+        description: 'Filter by status: PENDING, DROPPED, EXECUTED or ALL',
+        choices: ['PENDING', 'DROPPED', 'EXECUTED', 'ALL'],
+        default: 'ALL'
     })
     .option('from-block', {
         alias: 'b',
@@ -33,8 +34,12 @@ async function main() {
             console.warn("Falling back to a public provider. For best experience set a custom RPC URL.");
         }
 
-        const events = await fetchAndParseEvents(argv.rpcUrl, argv.fromBlock);
-        const table = createTable(events, argv.pending);
+        const events = await fetchPausePlans(argv.rpcUrl, {
+            fromBlock: argv.fromBlock,
+            status: argv.status
+        });
+        
+        const table = createTable(events);
 
         console.log(table);
     } catch (error) {

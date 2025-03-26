@@ -32,7 +32,7 @@ async function fetchEvents(contract, fromBlock) {
     }
 }
 
-function processEvent(event, contract) {
+function processEvent(event,contract) {
     const decoded = decodeLogNote(event, contract);
     const decodedCall = decodeCallParams(event.topics[0].slice(0, 10), decoded.fax, contract);
     return {
@@ -43,45 +43,46 @@ function processEvent(event, contract) {
     };
 }
 
-function parseEvents(events, contract) {
+function parseEvents(events, status, contract) {
     const decodedEvents = events.map(event => processEvent(event, contract));
-
-    const eventsList = [];
     const hashMap = new Map();
 
     decodedEvents.forEach(event => {
         const planHash = event.planHash;
 
-        if (event.topics[0] === PLOT_TOPIC) {
-            const item = {
+        if (!hashMap.has(planHash)) {
+            hashMap.set(planHash, {
                 hash: planHash,
                 guy: event.decoded.guy,
                 usr: event.decodedCall.usr,
                 tag: event.decodedCall.tag,
                 fax: event.decodedCall.fax.trim(),
                 eta: event.decodedCall.eta,
-                status: "PENDING"
-            }
-            eventsList.push(item)
-            hashMap.set(planHash, item);
+                status: ""
+            });
+        }
+
+        if (event.topics[0] === PLOT_TOPIC) {
+            hashMap.get(planHash).status = "PENDING";
         } else if (event.topics[0] === EXEC_TOPIC) {
-            const item = hashMap.get(planHash);
-            if (item) {
-                item.status = "EXECUTED";
-            }
+            hashMap.get(planHash).status = "EXECUTED";
         } else if (event.topics[0] === DROP_TOPIC) {
-            const item = hashMap.get(planHash);
-            if (item) {
-                item.status = "DROPPED";
-            }
+            hashMap.get(planHash).status = "DROPPED";
         }
     });
+
+    const eventsList = [];
+    for (const item of hashMap.values()) {
+        if (status === 'ALL' || item.status === status) {
+            eventsList.push(item);
+        }
+    }
 
     return eventsList;
 }
 
-export async function fetchAndParseEvents(rpcUrl, fromBlock) {
+export async function fetchPausePlans(rpcUrl, { fromBlock = 0, status = 'ALL'} = {}) {
     const pause = new ethers.Contract(MCD_PAUSE, pauseABI, ethers.getDefaultProvider(rpcUrl));
     const events = await fetchEvents(pause, fromBlock);
-    return parseEvents(events, pause);
+    return parseEvents(events, status, pause);
 }

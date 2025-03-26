@@ -12,7 +12,7 @@ const tableConfig = {
     }
 };
 
-export function createTable(events, pending) {
+export function createTable(events) {
 
     let tableData = events.map(event => [
         event.guy,
@@ -29,8 +29,6 @@ export function createTable(events, pending) {
         const etaB = BigInt(b[5]);
         return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
     });
-
-    tableData = pending ? tableData.filter(row => row[6] === "PENDING") : tableData;
 
     if (tableData.length === 0) {
         return "No records to display.";

@@ -19,14 +19,27 @@ OR
 
 node list --from-block 16420000
 ```
+Filter by status with `--status` flag. 
+Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
 
-Pending plans in `MCD_PAUSE` since block 19420069
+Get pending plans since block 19420069
 ```
 npm run list-pending --from-block 19420069
-
 OR
+node list --status PENDING --from-block 19420069
+```
+Get executed plans since block 19420069
+```
+npm run list-executed --from-block 19420069
+OR
+node list --status EXECUTED --from-block 19420069
+```
 
-node list --pending --from-block 19420069
+Get dropped plans since block 19420069
+```
+npm run list-dropped --from-block 19420069
+OR
+node list --status DROPPED --from-block 19420069
 ```
 
 ### 3. Help

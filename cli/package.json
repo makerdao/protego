@@ -5,7 +5,9 @@
   "scripts": {
     "help": "node --no-warnings list.js --help",
     "list": "node --no-warnings list.js",
-    "list-pending": "node --no-warnings list.js --pending"
+    "list-pending": "node --no-warnings list.js --status PENDING",
+    "list-executed": "node --no-warnings list.js --status EXECUTED",
+    "list-dropped": "node --no-warnings list.js --status DROPPED"
   },
   "exports": {
     ".": "./fetchPausePlans.js"

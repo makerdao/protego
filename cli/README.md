@@ -1,59 +1,27 @@
-# Protego Cli Scripts
+# Protego Scripts
 
 ## Usage
 
-### 1. Install dependencies
+### CLI
 
-```
-npm i
-```
-
-### 2. Run scripts
-
-List plans in `MCD_PAUSE` since block 16420000
-
-```
-npm run list --from-block 16420000
-
-OR
-
-node list --from-block 16420000
+```bash
+npx @dewiz-xyz/protego --status PENDING --from-block 19420069 --rpc-url <rpc-url>
 ```
 
-Filter by status with `--status` flag.
-Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
-
-Get pending plans since block 19420069
-
+All options:
 ```
-npm run list-pending --from-block 19420069
-OR
-node list --status PENDING --from-block 19420069
-```
-
-Get executed plans since block 19420069
-
-```
-npm run list-executed --from-block 19420069
-OR
-node list --status EXECUTED --from-block 19420069
+Options:
+      --version              Show version number                       [boolean]
+  -s, --status               Filter by status: PENDING, DROPPED, EXECUTED or ALL
+    [string] [choices: "PENDING", "DROPPED", "EXECUTED", "ALL"] [default: "ALL"]
+  -b, --from-block           Display spells from a given block
+                                                           [number] [default: 0]
+  -f, --rpc-url, --fork-url  RPC URL - Falls back to `ETH_RPC_URL` env var, then
+                              to a public provider [string] [default: "mainnet"]
+  -h, --help                 Show help                                 [boolean]
 ```
 
-Get dropped plans since block 19420069
-
-```
-npm run list-dropped --from-block 19420069
-OR
-node list --status DROPPED --from-block 19420069
-```
-
-### 3. Help
-
-```
-node list --help
-```
-
-## Output
+#### Output
 
 ```
 ╔═══════════════════════╤═══════════════════════════════════╤═══════════════════════╤═══════════════════════════════════╤════════════╤════════════╤════════════╗
@@ -94,3 +62,90 @@ The script outputs a table with the plans' details:
   - PENDING: The plan has been plotted (scheduled) on Pause, and is pending execution
   - EXECUTED: The plan has already been executed
   - DROPPED: The plan was scheduled and subsequently dropped
+
+### As a dependency
+
+```bash
+npm i @dewiz-xyz/protego
+```
+
+```js
+import { fetchPausePlans } from "@dewiz-xyz/protego";
+
+const plans = await fetchPausePlans("https://eth.llamarpc.com", {
+  fromBlock: 16420000,
+  status: "PENDING",
+});
+```
+
+Response type:
+
+```ts
+type Result = {
+  hash: string;
+  guy: string;
+  usr: string;
+  tag: string;
+  fax: string;
+  eta: number;
+  status: "PENDING" | "EXECUTED" | "DROPPED";
+};
+
+function fetchPausePlans(
+  rpcUrl: string,
+  { fromBlock = 0, status = "ALL" } = {},
+): Promise<Result[]>;
+```
+
+## Collaborating
+
+### 1. Install dependencies
+
+```bash
+npm i
+```
+
+### 2. Run scripts
+
+List plans in `MCD_PAUSE` since block 16420000
+
+```bash
+npm run list -- --from-block 16420000
+
+OR
+
+node list --from-block 16420000
+```
+
+Filter by status with `--status` flag.
+Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
+
+Get pending plans since block 19420069
+
+```bash
+npm run list -- --status PENDING --from-block 19420069
+OR
+node list --status PENDING --from-block 19420069
+```
+
+Get executed plans since block 19420069
+
+```bash
+npm run list -- --status EXECUTED --from-block 19420069
+OR
+node list --status EXECUTED --from-block 19420069
+```
+
+Get dropped plans since block 19420069
+
+```bash
+npm run list -- --status DROPPED --from-block 19420069
+OR
+node list --status DROPPED --from-block 19420069
+```
+
+### 3. Help
+
+```bash
+node list --help
+```

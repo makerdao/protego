@@ -89,7 +89,7 @@ type Result = {
   tag: string;
   fax: string;
   eta: number;
-  status: "PENDING" | "EXECUTED" | "DROPPED";
+  status: "PENDING" | "EXECUTED" | "DROPPED" | "ALL";
 };
 
 function fetchPausePlans(

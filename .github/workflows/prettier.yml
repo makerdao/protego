@@ -2,7 +2,6 @@ name: prettier.check
 on:
   pull_request:
   push:
-permissions: {}
 jobs:
   prettier:
     runs-on: ubuntu-latest

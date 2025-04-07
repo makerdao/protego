@@ -14,5 +14,8 @@
     "ethers": "^6.13.1",
     "table": "^6.8.2",
     "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
   }
 }

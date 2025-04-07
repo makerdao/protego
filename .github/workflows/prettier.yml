@@ -1,4 +1,4 @@
-name: autofix.ci
+name: prettier.check
 on:
   pull_request:
   push:
@@ -10,8 +10,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: |
+          cd cli
           npm install
-          npx prettier ./cli/ --check --ignore-unknown
-      - uses: autofix-ci/action@v1
-        with:
-          commit-message: "Apply Prettier format"
+          npx prettier . --check --ignore-unknown

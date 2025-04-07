@@ -9,6 +9,7 @@ npx @dewiz-xyz/protego --status PENDING --from-block 19420069 --rpc-url <rpc-url
 ```
 
 All options:
+
 ```
 Options:
       --version              Show version number                       [boolean]

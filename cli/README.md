@@ -19,16 +19,20 @@ OR
 
 node list --from-block 16420000
 ```
-Filter by status with `--status` flag. 
+
+Filter by status with `--status` flag.
 Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
 
 Get pending plans since block 19420069
+
 ```
 npm run list-pending --from-block 19420069
 OR
 node list --status PENDING --from-block 19420069
 ```
+
 Get executed plans since block 19420069
+
 ```
 npm run list-executed --from-block 19420069
 OR
@@ -36,6 +40,7 @@ node list --status EXECUTED --from-block 19420069
 ```
 
 Get dropped plans since block 19420069
+
 ```
 npm run list-dropped --from-block 19420069
 OR
@@ -43,6 +48,7 @@ node list --status DROPPED --from-block 19420069
 ```
 
 ### 3. Help
+
 ```
 node list --help
 ```
@@ -77,6 +83,7 @@ node list --help
 ```
 
 The script outputs a table with the plans' details:
+
 - SPELL: Address of the spell (keep in mind this only works for compliant Spells, this field lists the plan scheduler address, which is the Spell on compliant spells, if non-compliant this field should be ignored)
 - HASH: Hash of the plan
 - USR: Address of the `DssSpellAction` related to the Spell

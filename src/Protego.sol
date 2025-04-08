@@ -122,11 +122,11 @@ contract Protego {
      * @notice Drop multiple plans in a single call.
      * @dev If an empty array is passed, no spells are dropped and nothing happens as
      *      `DsPauseLike::drop` is not called.
-     * @param plans An array of plans to drop.
+     * @param _plans An array of plans to drop.
      */
-    function drop(Plan[] calldata plans) external {
-        for (uint256 i; i < plans.length;) {
-            drop(plans[i].usr, plans[i].tag, plans[i].fax, plans[i].eta);
+    function drop(Plan[] calldata _plans) external {
+        for (uint256 i; i < _plans.length;) {
+            drop(_plans[i].usr, _plans[i].tag, _plans[i].fax, _plans[i].eta);
 
             unchecked {
                 i++;

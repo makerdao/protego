@@ -18,4 +18,3 @@ pragma solidity ^0.8.16;
 struct ProtegoInstance {
     address protego;
 }
-

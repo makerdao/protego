@@ -25,6 +25,6 @@ struct ProtegoDeployParams {
 
 library ProtegoDeploy {
     function deploy(ProtegoDeployParams memory p) internal returns (ProtegoInstance memory r) {
-      r.protego = address(new Protego(p.pause));
+        r.protego = address(new Protego(p.pause));
     }
 }

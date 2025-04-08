@@ -88,19 +88,33 @@ contract Protego {
     }
 
     /**
+     * @notice A struct representing a plan.
+     * @param usr The address of the scheduled spell.
+     * @param tag The tag identifying the address.
+     * @param fax The encoded call to be made in `usr`.
+     * @param eta The expiration time.
+     */
+    struct Plan {
+        address usr;
+        bytes32 tag;
+        bytes fax;
+        uint256 eta;
+    }
+
+    /**
      * @notice Permissionlessly drop anything that has been planned on the pause.
      * @dev In some cases, due to a faulty spell being voted, a governance attack or other unforseen causes, it may be
      *      necessary to block any spell that is entered into the pause proxy.
      *      In this extreme case, the system can be protected during the pause delay by lifting the Protego contract to
      *      the hat role, which will allow any user to permissionlessly drop any id from the pause.
      *      This function is expected to revert if it does not have the authority to perform this function.
-     * @param _usr The address of the scheduled spell.
-     * @param _tag The tag identifying the address.
-     * @param _fax The encoded call to be made in `_usr`.
-     * @param _eta The expiration time.
+     * @dev This function supports dropping multiple scheduled plans in a single call.
+     * @param plans An array of plans to drop.
      */
-    function drop(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public {
-        DsPauseLike(pause).drop(_usr, _tag, _fax, _eta);
-        emit Drop(id(_usr, _tag, _fax, _eta));
+    function drop(Plan[] calldata plans) external {
+        for (uint256 i; i < plans.length; i++) {
+            DsPauseLike(pause).drop(plans[i].usr, plans[i].tag, plans[i].fax, plans[i].eta);
+            emit Drop(id(plans[i].usr, plans[i].tag, plans[i].fax, plans[i].eta));
+        }
     }
 }

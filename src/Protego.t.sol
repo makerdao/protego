@@ -169,18 +169,29 @@ contract ProtegoTest is DssTest {
 
         _vote(address(protego));
 
+        Protego.Plan[] memory plans = new Protego.Plan[](iter);
+
         for (uint256 i = 0; i < iter; i++) {
+            plans[i] = Protego.Plan({
+                usr: badSpells[i].action,
+                tag: badSpells[i].tag,
+                fax: badSpells[i].sig,
+                eta: badSpells[i].eta
+            });
             vm.expectEmit(true, true, true, true);
             emit Drop(protego.id(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
-            protego.drop(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta);
+        }
 
+        protego.drop(plans);
+
+        for (uint256 i = 0; i < iter; i++) {
             assertFalse(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
         }
 
         // After Protego loses the hat, it can no longer drop spells
         _vote(address(0));
         vm.expectRevert("ds-auth-unauthorized");
-        protego.drop(badSpells[0].action, badSpells[0].tag, badSpells[0].sig, badSpells[0].eta);
+        protego.drop(plans);
     }
 
     function _vote(address spell_) internal {

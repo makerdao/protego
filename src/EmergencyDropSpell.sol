@@ -64,8 +64,10 @@ contract EmergencyDropSpell is EmergencySpellLike {
     uint256 public immutable eta;
     /// @notice The original spell encoded call.
     bytes public sig;
-    // @dev An emergency spell does not need to be cast, as all actions happen during the schedule phase.
-    //      Notice that cast is usually not supposed to revert, so it is implemented as a no-op.
+    /**
+     * @dev An emergency spell does not need to be cast, as all actions happen during the schedule phase.
+     *      Notice that cast is usually not supposed to revert, so it is implemented as a no-op.
+     */
     uint256 public immutable nextCastTime = type(uint256).max;
 
     /// @notice Drop have been called.

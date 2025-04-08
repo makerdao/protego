@@ -154,7 +154,7 @@ contract ProtegoTest is DssTest {
         uint256 iter = 10;
         BadSpells[] memory badSpells = new BadSpells[](iter);
 
-        for (uint256 i = 0; i < iter; i++) {
+        for (uint256 i; i < iter; i++) {
             ConformingSpell badSpell = new ConformingSpell(pause, end);
             _vote(address(badSpell));
             badSpell.schedule();
@@ -171,7 +171,7 @@ contract ProtegoTest is DssTest {
 
         Protego.Plan[] memory plans = new Protego.Plan[](iter);
 
-        for (uint256 i = 0; i < iter; i++) {
+        for (uint256 i; i < iter; i++) {
             plans[i] = Protego.Plan({
                 usr: badSpells[i].action,
                 tag: badSpells[i].tag,
@@ -184,7 +184,7 @@ contract ProtegoTest is DssTest {
 
         protego.drop(plans);
 
-        for (uint256 i = 0; i < iter; i++) {
+        for (uint256 i; i < iter; i++) {
             assertFalse(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
         }
 

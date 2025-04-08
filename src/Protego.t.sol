@@ -47,8 +47,7 @@ interface GemLike {
     function transferFrom(address, address, uint256) external returns (bool);
 }
 
-struct BadSpells {
-    address badSpell;
+struct BadSpell {
     address action;
     bytes32 tag;
     bytes sig;
@@ -123,8 +122,8 @@ contract ProtegoTest is DssTest {
         assertEq(id, protego.id(usr, tag, sig, eta), "Invalid id from params");
     }
 
-    // Test drop of spell created with params
-    function testDropSpellParams() public {
+    // Test drop of spell created with params using a EmergencyDropSpell
+    function testDropSpellParamsUsingEmergencyDropSpell() public {
         address usr = address(0x1337);
         bytes32 tag = keccak256("Bad spell");
         bytes memory sig = abi.encodeWithSignature("destroy(bool)", true);
@@ -149,10 +148,44 @@ contract ProtegoTest is DssTest {
         assertFalse(protego.planned(usr, tag, sig, eta), "After drop spell: spell still planned");
     }
 
-    // Test drop anything by lifting Protego to hat
-    function testDropAllSpellsParams() public {
-        uint256 iter = 10;
-        BadSpells[] memory badSpells = new BadSpells[](iter);
+    // Test dropping a single spell by lifting Protego to hat
+    function testDropSingleSpellParamsWithHat() public {
+        ConformingSpell badSpell = new ConformingSpell(pause, end);
+        _vote(address(badSpell));
+        badSpell.schedule();
+
+        address usr = badSpell.action();
+        bytes32 tag = badSpell.tag();
+        bytes memory sig = badSpell.sig();
+        uint256 eta = badSpell.eta();
+
+        assertTrue(protego.planned(usr, tag, sig, eta));
+
+        _vote(address(protego));
+
+        vm.expectEmit(true, true, true, true);
+        emit Drop(protego.id(usr, tag, sig, eta));
+        protego.drop(usr, tag, sig, eta);
+
+        assertFalse(protego.planned(usr, tag, sig, eta));
+
+        // After Protego loses the hat, it can no longer drop spells
+        _vote(address(0));
+        vm.expectRevert("ds-auth-unauthorized");
+        protego.drop(usr, tag, sig, eta);
+    }
+
+    function testDropEmptyArray() public {
+        Protego.Plan[] memory plans = new Protego.Plan[](0);
+
+        // If an empty array is passed, the call succeeds but nothing happens as no `DsPauseLike::drop` is called.
+        protego.drop(plans);
+    }
+
+    // Fuzz test dropping multiple spells by lifting Protego to hat
+    function testFuzzDropManySpellsParamsWithHat(uint256 iter) public {
+        iter = bound(iter, 1, 50);
+        BadSpell[] memory badSpells = new BadSpell[](iter);
 
         for (uint256 i; i < iter; i++) {
             ConformingSpell badSpell = new ConformingSpell(pause, end);

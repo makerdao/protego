@@ -12,5 +12,8 @@ fs_permissions = [
     { access = "read-write", path = "./script/output/" }
 ]
 
+[fuzz]
+runs = 1_000
+
 [rpc_endpoints]
 mainnet = "${ETH_RPC_URL}"

@@ -189,8 +189,8 @@ contract ProtegoTest is DssTest {
         assertEq(vm.getRecordedLogs().length, 0, "After drop: unexpected logs were emitted");
 
         // Get all storage accesses since `vm.record()` was called.
-        (, bytes32[] memory writeSlots) = vm.accesses(address(protego));
-        // Check that storage stays unchanged.
+        (, bytes32[] memory writeSlots) = vm.accesses(address(pause));
+        // Check that DsPause's storage stays unchanged.
         assertEq(writeSlots.length, 0, "After drop: unexpected write slot");
     }
 

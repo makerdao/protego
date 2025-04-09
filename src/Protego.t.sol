@@ -73,7 +73,7 @@ contract ProtegoTest is DssTest {
     }
 
     function testPause() public view {
-        assertEq(protego.pause(), pause);
+        assertEq(protego.pause(), pause, "Pause address is incorrect");
     }
 
     function testDeployDropSpell() public {
@@ -159,7 +159,7 @@ contract ProtegoTest is DssTest {
         bytes memory sig = badSpell.sig();
         uint256 eta = badSpell.eta();
 
-        assertTrue(protego.planned(usr, tag, sig, eta));
+        assertTrue(protego.planned(usr, tag, sig, eta), "Before drop spell: not planned");
 
         _vote(address(protego));
 
@@ -167,7 +167,7 @@ contract ProtegoTest is DssTest {
         emit Drop(protego.id(usr, tag, sig, eta));
         protego.drop(usr, tag, sig, eta);
 
-        assertFalse(protego.planned(usr, tag, sig, eta));
+        assertFalse(protego.planned(usr, tag, sig, eta), "After drop spell: still planned");
 
         // After Protego loses the hat, it can no longer drop spells
         _vote(address(0));
@@ -209,7 +209,10 @@ contract ProtegoTest is DssTest {
             badSpells[i].sig = badSpell.sig();
             badSpells[i].eta = badSpell.eta();
 
-            assertTrue(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
+            assertTrue(
+                protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta),
+                "Before drop spell: not planned"
+            );
         }
 
         _vote(address(protego));
@@ -230,7 +233,10 @@ contract ProtegoTest is DssTest {
         protego.drop(plans);
 
         for (uint256 i; i < iter; i++) {
-            assertFalse(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
+            assertFalse(
+                protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta),
+                "After drop spell: still planned"
+            );
         }
 
         // After Protego loses the hat, it can no longer drop spells
@@ -251,7 +257,7 @@ contract ProtegoTest is DssTest {
             chief.vote(slate);
             chief.lift(spell_);
         }
-        assertEq(chief.hat(), spell_);
+        assertEq(chief.hat(), spell_, "spell is not the hat");
     }
 
     event Deploy(address dropSpell);

@@ -177,9 +177,21 @@ contract ProtegoTest is DssTest {
 
     function testDropEmptyArray() public {
         Protego.Plan[] memory plans = new Protego.Plan[](0);
+        // Start recording logs.
+        vm.recordLogs();
+        // Start recording storage accesses.
+        vm.record();
 
         // If an empty array is passed, the call succeeds but nothing happens as no `DsPauseLike::drop` is called.
         protego.drop(plans);
+
+        // Check that no events are emitted.
+        assertEq(vm.getRecordedLogs().length, 0, "After drop: unexpected logs were emitted");
+
+        // Get all storage accesses since `vm.record()` was called.
+        (, bytes32[] memory writeSlots) = vm.accesses(address(protego));
+        // Check that storage stays unchanged.
+        assertEq(writeSlots.length, 0, "After drop: unexpected write slot");
     }
 
     // Fuzz test dropping multiple spells by lifting Protego to hat

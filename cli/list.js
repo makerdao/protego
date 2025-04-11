@@ -1,5 +1,6 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { ethers } from "ethers";
 import { fetchPausePlans } from "./fetchPausePlans.js";
 import { createTable } from "./createTable.js";
 
@@ -35,7 +36,7 @@ async function main() {
       );
     }
 
-    const events = await fetchPausePlans(argv.rpcUrl, {
+    const events = await fetchPausePlans(ethers, argv.rpcUrl, {
       fromBlock: argv.fromBlock,
       status: argv.status,
     });

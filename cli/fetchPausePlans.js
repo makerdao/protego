@@ -101,13 +101,14 @@ function parseEvents(events, status, contract) {
 }
 
 export async function fetchPausePlans(
+  ethersInstance,
   rpcUrl,
   { fromBlock = 0, status = "ALL" } = {},
 ) {
-  const pause = new ethers.Contract(
+  const pause = new ethersInstance.Contract(
     MCD_PAUSE,
     pauseABI,
-    ethers.getDefaultProvider(rpcUrl),
+    ethersInstance.getDefaultProvider(rpcUrl),
   );
   const events = await fetchEvents(pause, fromBlock);
   return parseEvents(events, status, pause);

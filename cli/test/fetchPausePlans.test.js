@@ -1,6 +1,6 @@
 import { jest, describe, it, expect, beforeAll } from "@jest/globals";
 import { ethers } from "ethers";
-import { fetchPausePlans } from "../fetchPausePlans.js";
+import { fetchPausePlans, decodeLogNote, decodeCallParams, hash, processEvent } from "../fetchPausePlans.js";
 import pauseABI from "../pause_abi.json" with { type: "json" };
 import { mockEvents } from "./fixtures/events.js";
 
@@ -14,46 +14,7 @@ const DROP_TOPIC =
 let eventStats;
 let processedEvents;
 
-function decodeLogNote(log, contract) {
-  const eventFragment = contract.interface.getEvent("LogNote");
-  return contract.interface
-    .decodeEventLog(eventFragment, log.data, log.topics)
-    .toObject();
-}
 
-function decodeCallParams(sig, fax, contract) {
-  const functionFragment = contract.interface.getFunction(sig);
-  return contract.interface
-    .decodeFunctionData(functionFragment, fax)
-    .toObject();
-}
-
-function hash(params) {
-  const abiCoder = new ethers.AbiCoder();
-  const types = ["address", "bytes32", "bytes", "uint256"];
-  const encoded = abiCoder.encode(types, [
-    params.usr,
-    params.tag,
-    params.fax,
-    params.eta,
-  ]);
-  return ethers.keccak256(encoded);
-}
-
-function processEvent(event, contract) {
-  const decoded = decodeLogNote(event, contract);
-  const decodedCall = decodeCallParams(
-    event.topics[0].slice(0, 10),
-    decoded.fax,
-    contract,
-  );
-  return {
-    ...event,
-    decoded,
-    decodedCall,
-    planHash: hash(decodedCall),
-  };
-}
 
 function analyzeEvents(events) {
   const plotEvents = events.filter((e) => e.topics[0] === PLOT_TOPIC);

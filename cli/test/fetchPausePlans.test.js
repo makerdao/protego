@@ -1,18 +1,21 @@
-import { jest, describe, it, expect, beforeAll } from '@jest/globals';
-import { ethers } from 'ethers';
-import { fetchPausePlans } from '../fetchPausePlans.js';
-import pauseABI from '../pause_abi.json' with { type: 'json' };
-import { mockEvents } from './fixtures/events.js';
+import { jest, describe, it, expect, beforeAll } from "@jest/globals";
+import { ethers } from "ethers";
+import { fetchPausePlans } from "../fetchPausePlans.js";
+import pauseABI from "../pause_abi.json" with { type: "json" };
+import { mockEvents } from "./fixtures/events.js";
 
-const PLOT_TOPIC = '0x46d2fbbb00000000000000000000000000000000000000000000000000000000';
-const EXEC_TOPIC = '0x168ccd6700000000000000000000000000000000000000000000000000000000';
-const DROP_TOPIC = '0x162c7de300000000000000000000000000000000000000000000000000000000';
+const PLOT_TOPIC =
+  "0x46d2fbbb00000000000000000000000000000000000000000000000000000000";
+const EXEC_TOPIC =
+  "0x168ccd6700000000000000000000000000000000000000000000000000000000";
+const DROP_TOPIC =
+  "0x162c7de300000000000000000000000000000000000000000000000000000000";
 
 let eventStats;
 let processedEvents;
 
 function decodeLogNote(log, contract) {
-  const eventFragment = contract.interface.getEvent('LogNote');
+  const eventFragment = contract.interface.getEvent("LogNote");
   return contract.interface
     .decodeEventLog(eventFragment, log.data, log.topics)
     .toObject();
@@ -27,7 +30,7 @@ function decodeCallParams(sig, fax, contract) {
 
 function hash(params) {
   const abiCoder = new ethers.AbiCoder();
-  const types = ['address', 'bytes32', 'bytes', 'uint256'];
+  const types = ["address", "bytes32", "bytes", "uint256"];
   const encoded = abiCoder.encode(types, [
     params.usr,
     params.tag,
@@ -42,7 +45,7 @@ function processEvent(event, contract) {
   const decodedCall = decodeCallParams(
     event.topics[0].slice(0, 10),
     decoded.fax,
-    contract
+    contract,
   );
   return {
     ...event,
@@ -53,9 +56,9 @@ function processEvent(event, contract) {
 }
 
 function analyzeEvents(events) {
-  const plotEvents = events.filter(e => e.topics[0] === PLOT_TOPIC);
-  const execEvents = events.filter(e => e.topics[0] === EXEC_TOPIC);
-  const dropEvents = events.filter(e => e.topics[0] === DROP_TOPIC);
+  const plotEvents = events.filter((e) => e.topics[0] === PLOT_TOPIC);
+  const execEvents = events.filter((e) => e.topics[0] === EXEC_TOPIC);
+  const dropEvents = events.filter((e) => e.topics[0] === DROP_TOPIC);
 
   return {
     total: events.length,
@@ -66,17 +69,19 @@ function analyzeEvents(events) {
     events: {
       plot: plotEvents,
       exec: execEvents,
-      drop: dropEvents
-    }
+      drop: dropEvents,
+    },
   };
 }
 
-describe('fetchPausePlans', () => {
+describe("fetchPausePlans", () => {
   beforeAll(() => {
     const mockContract = {
-      interface: new ethers.Interface(pauseABI)
+      interface: new ethers.Interface(pauseABI),
     };
-    processedEvents = mockEvents.map(event => processEvent(event, mockContract));
+    processedEvents = mockEvents.map((event) =>
+      processEvent(event, mockContract),
+    );
 
     eventStats = analyzeEvents(mockEvents);
   });
@@ -87,23 +92,22 @@ describe('fetchPausePlans', () => {
   beforeEach(() => {
     mockContract = {
       queryFilter: jest.fn().mockResolvedValue(mockEvents),
-      interface: new ethers.Interface(pauseABI)
+      interface: new ethers.Interface(pauseABI),
     };
 
     mockEthers = {
       Contract: jest.fn().mockReturnValue(mockContract),
-      getDefaultProvider: jest.fn().mockReturnValue({})
+      getDefaultProvider: jest.fn().mockReturnValue({}),
     };
   });
 
-  it('should fetch all spells correctly', async () => {
-    const result = await fetchPausePlans(mockEthers, 'http://localhost:8545');
+  it("should fetch all spells correctly", async () => {
+    const result = await fetchPausePlans(mockEthers, "http://localhost:8545");
     expect(result).toHaveLength(eventStats.plotCount);
-    
-    result.forEach(spell => {
-      const plotEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === PLOT_TOPIC
+
+    result.forEach((spell) => {
+      const plotEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === PLOT_TOPIC,
       );
       expect(plotEvent).toBeTruthy();
 
@@ -113,7 +117,7 @@ describe('fetchPausePlans', () => {
         usr: plotEvent.decodedCall.usr,
         tag: plotEvent.decodedCall.tag,
         fax: plotEvent.decodedCall.fax.trim(),
-        eta: plotEvent.decodedCall.eta
+        eta: plotEvent.decodedCall.eta,
       });
     });
 
@@ -121,24 +125,23 @@ describe('fetchPausePlans', () => {
     expect(mockContract.queryFilter).toHaveBeenCalled();
   });
 
-  it('should fetch pending spells correctly', async () => {
-    const result = await fetchPausePlans(mockEthers, 'http://localhost:8545', { status: 'PENDING' });
+  it("should fetch pending spells correctly", async () => {
+    const result = await fetchPausePlans(mockEthers, "http://localhost:8545", {
+      status: "PENDING",
+    });
     expect(result).toHaveLength(eventStats.pendingCount);
-    
-    result.forEach(spell => {
-      const plotEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === PLOT_TOPIC
+
+    result.forEach((spell) => {
+      const plotEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === PLOT_TOPIC,
       );
       expect(plotEvent).toBeTruthy();
-      
-      const execEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === EXEC_TOPIC
+
+      const execEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === EXEC_TOPIC,
       );
-      const dropEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === DROP_TOPIC
+      const dropEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === DROP_TOPIC,
       );
       expect(execEvent).toBeUndefined();
       expect(dropEvent).toBeUndefined();
@@ -150,32 +153,30 @@ describe('fetchPausePlans', () => {
         tag: plotEvent.decodedCall.tag,
         fax: plotEvent.decodedCall.fax.trim(),
         eta: plotEvent.decodedCall.eta,
-        status: 'PENDING'
+        status: "PENDING",
       });
     });
   });
 
-  it('should fetch executed spells correctly', async () => {
-    const result = await fetchPausePlans(mockEthers, 'http://localhost:8545', { status: 'EXECUTED' });
+  it("should fetch executed spells correctly", async () => {
+    const result = await fetchPausePlans(mockEthers, "http://localhost:8545", {
+      status: "EXECUTED",
+    });
     expect(result).toHaveLength(eventStats.execCount);
-    
-    result.forEach(spell => {
 
-      const plotEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === PLOT_TOPIC
+    result.forEach((spell) => {
+      const plotEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === PLOT_TOPIC,
       );
-      const execEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === EXEC_TOPIC
+      const execEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === EXEC_TOPIC,
       );
-      
+
       expect(plotEvent).toBeTruthy();
       expect(execEvent).toBeTruthy();
-      
-      const dropEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === DROP_TOPIC
+
+      const dropEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === DROP_TOPIC,
       );
       expect(dropEvent).toBeUndefined();
 
@@ -186,31 +187,30 @@ describe('fetchPausePlans', () => {
         tag: plotEvent.decodedCall.tag,
         fax: plotEvent.decodedCall.fax.trim(),
         eta: plotEvent.decodedCall.eta,
-        status: 'EXECUTED'
+        status: "EXECUTED",
       });
     });
   });
 
-  it('should fetch dropped spells correctly', async () => {
-    const result = await fetchPausePlans(mockEthers, 'http://localhost:8545', { status: 'DROPPED' });
+  it("should fetch dropped spells correctly", async () => {
+    const result = await fetchPausePlans(mockEthers, "http://localhost:8545", {
+      status: "DROPPED",
+    });
     expect(result).toHaveLength(eventStats.dropCount);
-    
-    result.forEach(spell => {
-      const plotEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === PLOT_TOPIC
+
+    result.forEach((spell) => {
+      const plotEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === PLOT_TOPIC,
       );
-      const dropEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === DROP_TOPIC
+      const dropEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === DROP_TOPIC,
       );
-      
+
       expect(plotEvent).toBeTruthy();
       expect(dropEvent).toBeTruthy();
-      
-      const execEvent = processedEvents.find(e => 
-        e.planHash === spell.hash && 
-        e.topics[0] === EXEC_TOPIC
+
+      const execEvent = processedEvents.find(
+        (e) => e.planHash === spell.hash && e.topics[0] === EXEC_TOPIC,
       );
       expect(execEvent).toBeUndefined();
 
@@ -221,7 +221,7 @@ describe('fetchPausePlans', () => {
         tag: plotEvent.decodedCall.tag,
         fax: plotEvent.decodedCall.fax.trim(),
         eta: plotEvent.decodedCall.eta,
-        status: 'DROPPED'
+        status: "DROPPED",
       });
     });
   });

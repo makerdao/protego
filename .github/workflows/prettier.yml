@@ -1,0 +1,14 @@
+name: prettier.check
+on:
+  pull_request:
+  push:
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: |
+          cd cli
+          npm install
+          npx prettier . --check --ignore-unknown

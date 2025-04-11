@@ -1,0 +1,21 @@
+{
+  "type": "module",
+  "name": "@dewiz-xyz/protego",
+  "version": "0.1.0",
+  "scripts": {
+    "help": "node --no-warnings list.js --help",
+    "list": "node --no-warnings list.js"
+  },
+  "exports": {
+    ".": "./fetchPausePlans.js"
+  },
+  "bin": "./list.js",
+  "dependencies": {
+    "ethers": "^6.13.1",
+    "table": "^6.8.2",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

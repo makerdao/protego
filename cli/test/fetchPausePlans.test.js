@@ -1,6 +1,12 @@
 import { jest, describe, it, expect, beforeAll } from "@jest/globals";
 import { ethers } from "ethers";
-import { fetchPausePlans, decodeLogNote, decodeCallParams, hash, processEvent } from "../fetchPausePlans.js";
+import {
+  fetchPausePlans,
+  decodeLogNote,
+  decodeCallParams,
+  hash,
+  processEvent,
+} from "../fetchPausePlans.js";
 import pauseABI from "../pause_abi.json" with { type: "json" };
 import { mockEvents } from "./fixtures/events.js";
 
@@ -13,8 +19,6 @@ const DROP_TOPIC =
 
 let eventStats;
 let processedEvents;
-
-
 
 function analyzeEvents(events) {
   const plotEvents = events.filter((e) => e.topics[0] === PLOT_TOPIC);
@@ -53,14 +57,14 @@ describe("fetchPausePlans", () => {
     mockContractInstance = {
       queryFilter: jest.fn().mockImplementation((topics, fromBlock) => {
         // Filter events based on fromBlock and topics
-        const filteredEvents = mockEvents.filter(event => {
+        const filteredEvents = mockEvents.filter((event) => {
           const matchesBlock = event.blockNumber >= fromBlock;
           const matchesTopic = topics[0].includes(event.topics[0]);
           return matchesBlock && matchesTopic;
         });
         return Promise.resolve(filteredEvents);
       }),
-      interface: new ethers.Interface(pauseABI)
+      interface: new ethers.Interface(pauseABI),
     };
   });
 
@@ -194,17 +198,19 @@ describe("fetchPausePlans", () => {
 
     expect(mockContractInstance.queryFilter).toHaveBeenCalledWith(
       [[PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC]],
-      fromBlock
+      fromBlock,
     );
 
-    const expectedEvents = mockEvents.filter(e => {
+    const expectedEvents = mockEvents.filter((e) => {
       const matchesBlock = e.blockNumber >= fromBlock;
-      const matchesTopic = [PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC].includes(e.topics[0]);
+      const matchesTopic = [PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC].includes(
+        e.topics[0],
+      );
       return matchesBlock && matchesTopic;
     });
 
     const allEventsByHash = new Map();
-    processedEvents.forEach(event => {
+    processedEvents.forEach((event) => {
       if (!allEventsByHash.has(event.planHash)) {
         allEventsByHash.set(event.planHash, []);
       }
@@ -212,22 +218,22 @@ describe("fetchPausePlans", () => {
     });
 
     const expectedSpells = new Set();
-    expectedEvents.forEach(event => {
+    expectedEvents.forEach((event) => {
       const decodedCall = decodeCallParams(
         event.topics[0].slice(0, 10),
         decodeLogNote(event, mockContractInstance).fax,
-        mockContractInstance
+        mockContractInstance,
       );
       const planHash = hash(decodedCall);
       const spellEvents = allEventsByHash.get(planHash) || [];
-      
+
       // A spell should be included if:
       // 1. Its PLOT event is after fromBlock, or
       // 2. Its EXEC/DROP event is after fromBlock and determines its final status
-      const plotEvent = spellEvents.find(e => e.topics[0] === PLOT_TOPIC);
-      const execEvent = spellEvents.find(e => e.topics[0] === EXEC_TOPIC);
-      const dropEvent = spellEvents.find(e => e.topics[0] === DROP_TOPIC);
-      
+      const plotEvent = spellEvents.find((e) => e.topics[0] === PLOT_TOPIC);
+      const execEvent = spellEvents.find((e) => e.topics[0] === EXEC_TOPIC);
+      const dropEvent = spellEvents.find((e) => e.topics[0] === DROP_TOPIC);
+
       if (plotEvent && plotEvent.blockNumber >= fromBlock) {
         expectedSpells.add(planHash);
       } else if (execEvent && execEvent.blockNumber >= fromBlock) {
@@ -239,18 +245,26 @@ describe("fetchPausePlans", () => {
 
     expect(result).toHaveLength(expectedSpells.size);
 
-    result.forEach(spell => {
+    result.forEach((spell) => {
       const spellEvents = allEventsByHash.get(spell.hash) || [];
-      const plotEvent = spellEvents.find(e => e.topics[0] === PLOT_TOPIC);
-      const execEvent = spellEvents.find(e => e.topics[0] === EXEC_TOPIC);
-      const dropEvent = spellEvents.find(e => e.topics[0] === DROP_TOPIC);
+      const plotEvent = spellEvents.find((e) => e.topics[0] === PLOT_TOPIC);
+      const execEvent = spellEvents.find((e) => e.topics[0] === EXEC_TOPIC);
+      const dropEvent = spellEvents.find((e) => e.topics[0] === DROP_TOPIC);
 
       expect(plotEvent).toBeTruthy();
 
-      if (spell.status === 'EXECUTED' && execEvent && execEvent.blockNumber >= fromBlock) {
+      if (
+        spell.status === "EXECUTED" &&
+        execEvent &&
+        execEvent.blockNumber >= fromBlock
+      ) {
         expect(execEvent.blockNumber).toBeGreaterThanOrEqual(fromBlock);
       }
-      if (spell.status === 'DROPPED' && dropEvent && dropEvent.blockNumber >= fromBlock) {
+      if (
+        spell.status === "DROPPED" &&
+        dropEvent &&
+        dropEvent.blockNumber >= fromBlock
+      ) {
         expect(dropEvent.blockNumber).toBeGreaterThanOrEqual(fromBlock);
       }
     });

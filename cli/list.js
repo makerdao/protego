@@ -43,7 +43,7 @@ async function main() {
       MCD_PAUSE,
       pauseABI,
       ethers.getDefaultProvider(argv.rpcUrl),
-    );    
+    );
 
     const events = await fetchPausePlans(pause, {
       fromBlock: argv.fromBlock,

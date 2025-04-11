@@ -1,0 +1,36 @@
+name: CLI Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'cli/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'cli/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        working-directory: ./cli
+        run: npm install
+        
+      - name: Run tests
+        working-directory: ./cli
+        run: npm test

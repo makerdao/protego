@@ -3,6 +3,9 @@ import { hideBin } from "yargs/helpers";
 import { ethers } from "ethers";
 import { fetchPausePlans } from "./fetchPausePlans.js";
 import { createTable } from "./createTable.js";
+import pauseABI from "./pause_abi.json" with { type: "json" };
+
+const MCD_PAUSE = "0xbE286431454714F511008713973d3B053A2d38f3";
 
 const argv = yargs(hideBin(process.argv))
   .option("status", {
@@ -36,7 +39,13 @@ async function main() {
       );
     }
 
-    const events = await fetchPausePlans(ethers, argv.rpcUrl, {
+    const pause = new ethers.Contract(
+      MCD_PAUSE,
+      pauseABI,
+      ethers.getDefaultProvider(argv.rpcUrl),
+    );    
+
+    const events = await fetchPausePlans(pause, {
       fromBlock: argv.fromBlock,
       status: argv.status,
     });

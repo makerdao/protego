@@ -1,7 +1,5 @@
 import { ethers } from "ethers";
-import pauseABI from "./pause_abi.json" with { type: "json" };
 
-const MCD_PAUSE = "0xbE286431454714F511008713973d3B053A2d38f3";
 const PLOT_TOPIC =
   "0x46d2fbbb00000000000000000000000000000000000000000000000000000000";
 const EXEC_TOPIC =
@@ -101,15 +99,9 @@ function parseEvents(events, status, contract) {
 }
 
 export async function fetchPausePlans(
-  ethersInstance,
-  rpcUrl,
+  contractInstance,
   { fromBlock = 0, status = "ALL" } = {},
 ) {
-  const pause = new ethersInstance.Contract(
-    MCD_PAUSE,
-    pauseABI,
-    ethersInstance.getDefaultProvider(rpcUrl),
-  );
-  const events = await fetchEvents(pause, fromBlock);
-  return parseEvents(events, status, pause);
+  const events = await fetchEvents(contractInstance, fromBlock);
+  return parseEvents(events, status, contractInstance);
 }

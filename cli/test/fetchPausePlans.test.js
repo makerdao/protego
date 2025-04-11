@@ -86,23 +86,17 @@ describe("fetchPausePlans", () => {
     eventStats = analyzeEvents(mockEvents);
   });
 
-  let mockContract;
-  let mockEthers;
+  let mockContractInstance;
 
   beforeEach(() => {
-    mockContract = {
+    mockContractInstance = {
       queryFilter: jest.fn().mockResolvedValue(mockEvents),
-      interface: new ethers.Interface(pauseABI),
-    };
-
-    mockEthers = {
-      Contract: jest.fn().mockReturnValue(mockContract),
-      getDefaultProvider: jest.fn().mockReturnValue({}),
+      interface: new ethers.Interface(pauseABI)
     };
   });
 
   it("should fetch all spells correctly", async () => {
-    const result = await fetchPausePlans(mockEthers, "http://localhost:8545");
+    const result = await fetchPausePlans(mockContractInstance);
     expect(result).toHaveLength(eventStats.plotCount);
 
     result.forEach((spell) => {
@@ -121,12 +115,11 @@ describe("fetchPausePlans", () => {
       });
     });
 
-    expect(mockEthers.Contract).toHaveBeenCalled();
-    expect(mockContract.queryFilter).toHaveBeenCalled();
+    expect(mockContractInstance.queryFilter).toHaveBeenCalled();
   });
 
   it("should fetch pending spells correctly", async () => {
-    const result = await fetchPausePlans(mockEthers, "http://localhost:8545", {
+    const result = await fetchPausePlans(mockContractInstance, {
       status: "PENDING",
     });
     expect(result).toHaveLength(eventStats.pendingCount);
@@ -159,7 +152,7 @@ describe("fetchPausePlans", () => {
   });
 
   it("should fetch executed spells correctly", async () => {
-    const result = await fetchPausePlans(mockEthers, "http://localhost:8545", {
+    const result = await fetchPausePlans(mockContractInstance, {
       status: "EXECUTED",
     });
     expect(result).toHaveLength(eventStats.execCount);
@@ -193,7 +186,7 @@ describe("fetchPausePlans", () => {
   });
 
   it("should fetch dropped spells correctly", async () => {
-    const result = await fetchPausePlans(mockEthers, "http://localhost:8545", {
+    const result = await fetchPausePlans(mockContractInstance, {
       status: "DROPPED",
     });
     expect(result).toHaveLength(eventStats.dropCount);

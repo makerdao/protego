@@ -27,17 +27,38 @@ If there is sufficient ecosystem interest to cancel (`drop`) a particular schedu
 Protego contains a factory to permissionlessly create a spell ("Emergency Drop Spell"), which &ndash; upon being given
 the hat &ndash; is able to drop the targeted plan in `MCD_PAUSE`.
 
-### 2. Enable permissionless dropping of any plan
+### 2. Enable permissionless dropping of a single or multiple plans 
+
 
 ```solidity
+/// @notice Permissionlessly drop anything that has been planned on the pause.
 drop(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta)
+```
+
+```solidity
+/**
+ * @notice A struct representing a plan.
+ * @param usr The address of the scheduled spell.
+ * @param tag The tag identifying the address.
+ * @param fax The encoded call to be made in `usr`.
+ * @param eta The expiration time.
+ */
+struct Plan {
+    address usr;
+    bytes32 tag;
+    bytes fax;
+    uint256 eta;
+}
+
+/// @notice Drop multiple plans in a single call.
+drop(Plan[] calldata plans)
 ```
 
 In case of a governance attack, numerous spells could be created and planned by an attacker at a rate faster than a
 single hat spell can `drop` them. To mitigate this risk, the `Protego` contract itself can be given the hat, which
-allows any user to permissionlessly drop any plan.
+allows any user to permissionlessly drop any plan. Protego may either cancel one plan per call, or cancel multiple plans in a single call by passing a `Plan[]` to the multi drop function.
 
-It will **immediately** drop a plan in `MCD_PAUSE` using the parameters provided.
+Both functions will **immediately** drop one or many plans in `MCD_PAUSE` using the parameters provided.
 
 ## Additional functions
 

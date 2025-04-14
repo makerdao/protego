@@ -41,11 +41,10 @@ function analyzeEvents(events) {
 
 describe("fetchPausePlans", () => {
   beforeAll(() => {
-    const mockContract = {
-      interface: new ethers.Interface(defaults.MCD_PAUSE_ABI),
-    };
     processedEvents = mockEvents.map((event) =>
-      processEvent(event, mockContract),
+      processEvent(event, {
+        interface: new ethers.Interface(defaults.MCD_PAUSE_ABI),
+      }),
     );
 
     eventStats = analyzeEvents(mockEvents);

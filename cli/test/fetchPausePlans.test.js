@@ -7,7 +7,7 @@ import {
   hash,
   processEvent,
 } from "../fetchPausePlans.js";
-import pauseABI from "../pause_abi.json" with { type: "json" };
+import defaults from "../defaults.js";
 import { mockEvents } from "./fixtures/events.js";
 
 const PLOT_TOPIC =
@@ -42,7 +42,7 @@ function analyzeEvents(events) {
 describe("fetchPausePlans", () => {
   beforeAll(() => {
     const mockContract = {
-      interface: new ethers.Interface(pauseABI),
+      interface: new ethers.Interface(defaults.MCD_PAUSE_ABI),
     };
     processedEvents = mockEvents.map((event) =>
       processEvent(event, mockContract),
@@ -64,7 +64,7 @@ describe("fetchPausePlans", () => {
         });
         return Promise.resolve(filteredEvents);
       }),
-      interface: new ethers.Interface(pauseABI),
+      interface: new ethers.Interface(defaults.MCD_PAUSE_ABI),
     };
   });
 

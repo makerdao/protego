@@ -106,9 +106,9 @@ contract EmergencyDropSpell is EmergencySpellLike {
     /// @notice No-op.
     function cast() external {}
 
-    /// @notice Returns the description of the spell in the format "MakerDAO Drop Spell: <ID>"
+    /// @notice Returns the description of the spell in the format "Sky Protocol Drop Spell: <ID>"
     function description() external view returns (string memory) {
-        return string(abi.encodePacked("MakerDAO Drop Spell: ", protego.id(action, tag, sig, eta)));
+        return string(abi.encodePacked("Sky Protocol Drop Spell: ", protego.id(action, tag, sig, eta)));
     }
 
     /// @notice Returns true if the original spell has been dropped or has never been planned.

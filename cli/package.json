@@ -8,9 +8,9 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "exports": {
-    ".": "./fetchPausePlans.js"
+    ".": "./module.js"
   },
-  "bin": "./list.js",
+  "bin": "./cli.js",
   "dependencies": {
     "ethers": "^6.13.1",
     "table": "^6.8.2",

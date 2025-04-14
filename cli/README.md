@@ -5,21 +5,26 @@
 ### CLI
 
 ```bash
-npx @dewiz-xyz/protego --status PENDING --from-block 19420069 --rpc-url <rpc-url>
+npx @dewiz-xyz/protego --status PENDING --from-block 19420069 --rpc-url <rpc-url> --pause-address <addr>
 ```
 
 All options:
 
 ```
 Options:
-      --version              Show version number                       [boolean]
-  -s, --status               Filter by status: PENDING, DROPPED, EXECUTED or ALL
-    [string] [choices: "PENDING", "DROPPED", "EXECUTED", "ALL"] [default: "ALL"]
+      --version              Show version number                   [boolean]
+      --pause-address        MCD_PAUSE contract address
+            [string] [default: "0xbE286431454714F511008713973d3B053A2d38f3"]
+  -s, --status               Filter by status: PENDING, DROPPED, EXECUTED or
+                              ALL
+  [string] [choices: "PENDING", "DROPPED", "EXECUTED", "ALL"] [default: "ALL
+                                                                          "]
   -b, --from-block           Display spells from a given block
-                                                           [number] [default: 0]
-  -f, --rpc-url, --fork-url  RPC URL - Falls back to `ETH_RPC_URL` env var, then
-                              to a public provider [string] [default: "mainnet"]
-  -h, --help                 Show help                                 [boolean]
+                                                       [number] [default: 0]
+  -f, --rpc-url, --fork-url  RPC URL - Falls back to `ETH_RPC_URL` env var,
+                             then to a public provider
+                                               [string] [default: "mainnet"]
+  -h, --help                 Show help                             [boolean]
 ```
 
 #### Output
@@ -70,18 +75,21 @@ The script outputs a table with the plans' details:
 npm i @dewiz-xyz/protego
 ```
 
-```js
+```javascript
 import { fetchPausePlans } from "@dewiz-xyz/protego";
 
-const plans = await fetchPausePlans("https://eth.llamarpc.com", {
+const plans = await fetchPausePlans({
+  rpcUrl: "https://eth.llamarpc.com", 
   fromBlock: 16420000,
   status: "PENDING",
+  // Optional: this is the MCD_PAUSE address
+  pauseAddress: "0xbE286431454714F511008713973d3B053A2d38f3",
 });
 ```
 
 Response type:
 
-```ts
+```typescript
 type Result = {
   hash: string;
   guy: string;

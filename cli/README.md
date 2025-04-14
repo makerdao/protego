@@ -79,7 +79,7 @@ npm i @dewiz-xyz/protego
 import { fetchPausePlans } from "@dewiz-xyz/protego";
 
 const plans = await fetchPausePlans({
-  rpcUrl: "https://eth.llamarpc.com", 
+  rpcUrl: "https://eth.llamarpc.com",
   fromBlock: 16420000,
   status: "PENDING",
   // Optional: this is the MCD_PAUSE address

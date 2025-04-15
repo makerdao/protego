@@ -119,11 +119,11 @@ npm i
 List plans in `MCD_PAUSE` since block 16420000
 
 ```bash
-npm run list -- --from-block 16420000
+npm run cli -- --from-block 16420000
 
 OR
 
-node list --from-block 16420000
+node cli --from-block 16420000
 ```
 
 Filter by status with `--status` flag.
@@ -132,29 +132,29 @@ Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
 Get pending plans since block 19420069
 
 ```bash
-npm run list -- --status PENDING --from-block 19420069
+npm run cli -- --status PENDING --from-block 19420069
 OR
-node list --status PENDING --from-block 19420069
+node cli --status PENDING --from-block 19420069
 ```
 
 Get executed plans since block 19420069
 
 ```bash
-npm run list -- --status EXECUTED --from-block 19420069
+npm run cli -- --status EXECUTED --from-block 19420069
 OR
-node list --status EXECUTED --from-block 19420069
+node cli --status EXECUTED --from-block 19420069
 ```
 
 Get dropped plans since block 19420069
 
 ```bash
-npm run list -- --status DROPPED --from-block 19420069
+npm run cli -- --status DROPPED --from-block 19420069
 OR
-node list --status DROPPED --from-block 19420069
+node cli --status DROPPED --from-block 19420069
 ```
 
 ### 3. Help
 
 ```bash
-node list --help
+node cli --help
 ```

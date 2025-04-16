@@ -100,10 +100,16 @@ type Result = {
   status: "PENDING" | "EXECUTED" | "DROPPED" | "ALL";
 };
 
-function fetchPausePlans(
-  rpcUrl: string,
-  { fromBlock = 0, status = "ALL" } = {},
-): Promise<Result[]>;
+type Status = "ALL" | "PENDING" | "DROPPED" | "EXECUTED";
+
+type Cfg = {
+    status: Status = "ALL",
+    fromBlock: number = 0,
+    rpcUrl: string = "mainnet",
+    pauseAddress: string = "{MCD_PAUSE}",
+}
+
+function fetchPausePlans(cfg: Cfg = {}): Promise<Result[]>{}
 ```
 
 ## Collaborating

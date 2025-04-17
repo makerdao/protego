@@ -5,21 +5,26 @@
 ### CLI
 
 ```bash
-npx @dewiz-xyz/protego --status PENDING --from-block 19420069 --rpc-url <rpc-url>
+npx @dewiz-xyz/protego --status PENDING --from-block 19420069 --rpc-url <rpc-url> --pause-address <addr>
 ```
 
 All options:
 
 ```
 Options:
-      --version              Show version number                       [boolean]
-  -s, --status               Filter by status: PENDING, DROPPED, EXECUTED or ALL
-    [string] [choices: "PENDING", "DROPPED", "EXECUTED", "ALL"] [default: "ALL"]
+      --version              Show version number                   [boolean]
+      --pause-address        MCD_PAUSE contract address
+            [string] [default: "0xbE286431454714F511008713973d3B053A2d38f3"]
+  -s, --status               Filter by status: PENDING, DROPPED, EXECUTED or
+                              ALL
+  [string] [choices: "PENDING", "DROPPED", "EXECUTED", "ALL"] [default: "ALL
+                                                                          "]
   -b, --from-block           Display spells from a given block
-                                                           [number] [default: 0]
-  -f, --rpc-url, --fork-url  RPC URL - Falls back to `ETH_RPC_URL` env var, then
-                              to a public provider [string] [default: "mainnet"]
-  -h, --help                 Show help                                 [boolean]
+                                                       [number] [default: 0]
+  -f, --rpc-url, --fork-url  RPC URL - Falls back to `ETH_RPC_URL` env var,
+                             then to a public provider
+                                               [string] [default: "mainnet"]
+  -h, --help                 Show help                             [boolean]
 ```
 
 #### Output
@@ -70,18 +75,21 @@ The script outputs a table with the plans' details:
 npm i @dewiz-xyz/protego
 ```
 
-```js
+```javascript
 import { fetchPausePlans } from "@dewiz-xyz/protego";
 
-const plans = await fetchPausePlans("https://eth.llamarpc.com", {
+const plans = await fetchPausePlans({
+  rpcUrl: "https://eth.llamarpc.com",
   fromBlock: 16420000,
   status: "PENDING",
+  // Optional: this is the MCD_PAUSE address
+  pauseAddress: "0xbE286431454714F511008713973d3B053A2d38f3",
 });
 ```
 
 Response type:
 
-```ts
+```typescript
 type Result = {
   hash: string;
   guy: string;
@@ -92,10 +100,16 @@ type Result = {
   status: "PENDING" | "EXECUTED" | "DROPPED" | "ALL";
 };
 
-function fetchPausePlans(
-  rpcUrl: string,
-  { fromBlock = 0, status = "ALL" } = {},
-): Promise<Result[]>;
+type Status = "ALL" | "PENDING" | "DROPPED" | "EXECUTED";
+
+type Cfg = {
+    status: Status = "ALL",
+    fromBlock: number = 0,
+    rpcUrl: string = "mainnet",
+    pauseAddress: string = "{MCD_PAUSE}",
+}
+
+function fetchPausePlans(cfg: Cfg = {}): Promise<Result[]>{}
 ```
 
 ## Collaborating
@@ -111,11 +125,11 @@ npm i
 List plans in `MCD_PAUSE` since block 16420000
 
 ```bash
-npm run list -- --from-block 16420000
+npm run cli -- --from-block 16420000
 
 OR
 
-node list --from-block 16420000
+node cli --from-block 16420000
 ```
 
 Filter by status with `--status` flag.
@@ -124,29 +138,29 @@ Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
 Get pending plans since block 19420069
 
 ```bash
-npm run list -- --status PENDING --from-block 19420069
+npm run cli -- --status PENDING --from-block 19420069
 OR
-node list --status PENDING --from-block 19420069
+node cli --status PENDING --from-block 19420069
 ```
 
 Get executed plans since block 19420069
 
 ```bash
-npm run list -- --status EXECUTED --from-block 19420069
+npm run cli -- --status EXECUTED --from-block 19420069
 OR
-node list --status EXECUTED --from-block 19420069
+node cli --status EXECUTED --from-block 19420069
 ```
 
 Get dropped plans since block 19420069
 
 ```bash
-npm run list -- --status DROPPED --from-block 19420069
+npm run cli -- --status DROPPED --from-block 19420069
 OR
-node list --status DROPPED --from-block 19420069
+node cli --status DROPPED --from-block 19420069
 ```
 
 ### 3. Help
 
 ```bash
-node list --help
+node cli --help
 ```

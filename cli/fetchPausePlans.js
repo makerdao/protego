@@ -1,7 +1,5 @@
 import { ethers } from "ethers";
-import pauseABI from "./pause_abi.json" with { type: "json" };
 
-const MCD_PAUSE = "0xbE286431454714F511008713973d3B053A2d38f3";
 const PLOT_TOPIC =
   "0x46d2fbbb00000000000000000000000000000000000000000000000000000000";
 const EXEC_TOPIC =
@@ -9,21 +7,21 @@ const EXEC_TOPIC =
 const DROP_TOPIC =
   "0x162c7de300000000000000000000000000000000000000000000000000000000";
 
-function decodeLogNote(log, contract) {
+export function decodeLogNote(log, contract) {
   const eventFragment = contract.interface.getEvent("LogNote");
   return contract.interface
     .decodeEventLog(eventFragment, log.data, log.topics)
     .toObject();
 }
 
-function decodeCallParams(sig, fax, contract) {
+export function decodeCallParams(sig, fax, contract) {
   const functionFragment = contract.interface.getFunction(sig);
   return contract.interface
     .decodeFunctionData(functionFragment, fax)
     .toObject();
 }
 
-function hash(params) {
+export function hash(params) {
   const abiCoder = new ethers.AbiCoder();
   const types = ["address", "bytes32", "bytes", "uint256"];
   const encoded = abiCoder.encode(types, [
@@ -47,7 +45,7 @@ async function fetchEvents(contract, fromBlock) {
   }
 }
 
-function processEvent(event, contract) {
+export function processEvent(event, contract) {
   const decoded = decodeLogNote(event, contract);
   const decodedCall = decodeCallParams(
     event.topics[0].slice(0, 10),
@@ -101,14 +99,9 @@ function parseEvents(events, status, contract) {
 }
 
 export async function fetchPausePlans(
-  rpcUrl,
+  contractInstance,
   { fromBlock = 0, status = "ALL" } = {},
 ) {
-  const pause = new ethers.Contract(
-    MCD_PAUSE,
-    pauseABI,
-    ethers.getDefaultProvider(rpcUrl),
-  );
-  const events = await fetchEvents(pause, fromBlock);
-  return parseEvents(events, status, pause);
+  const events = await fetchEvents(contractInstance, fromBlock);
+  return parseEvents(events, status, contractInstance);
 }

@@ -22,7 +22,7 @@ interface DsPauseLike {
     function drop(address, bytes32, bytes calldata, uint256) external;
 }
 
-/// @title Protego: permisionlessly drop any plan in `DsPause`-like contracts.
+/// @title Protego: permissionlessly drop any plan in `DsPause`-like contracts.
 contract Protego {
     /// @notice A reference to the `DsPause` contract.
     address public immutable pause;
@@ -81,7 +81,7 @@ contract Protego {
 
     /**
      * @notice Returns whether an id is planned or not.
-     * @param _id The ide of the plan.
+     * @param _id The id of the plan.
      */
     function planned(bytes32 _id) public view returns (bool) {
         return DsPauseLike(pause).plans(_id);
@@ -89,7 +89,7 @@ contract Protego {
 
     /**
      * @notice Permissionlessly drop anything that has been planned on the pause.
-     * @dev In some cases, due to a faulty spell being voted, a governance attack or other unforseen causes, it may be
+     * @dev In some cases, due to a faulty spell being voted, a governance attack or other unforeseen causes, it may be
      *      necessary to block any spell that is entered into the pause proxy.
      *      In this extreme case, the system can be protected during the pause delay by lifting the Protego contract to
      *      the hat role, which will allow any user to permissionlessly drop any id from the pause.
@@ -102,5 +102,35 @@ contract Protego {
     function drop(address _usr, bytes32 _tag, bytes memory _fax, uint256 _eta) public {
         DsPauseLike(pause).drop(_usr, _tag, _fax, _eta);
         emit Drop(id(_usr, _tag, _fax, _eta));
+    }
+
+    /**
+     * @notice A struct representing a plan.
+     * @param usr The address of the scheduled spell.
+     * @param tag The tag identifying the address.
+     * @param fax The encoded call to be made in `usr`.
+     * @param eta The expiration time.
+     */
+    struct Plan {
+        address usr;
+        bytes32 tag;
+        bytes fax;
+        uint256 eta;
+    }
+
+    /**
+     * @notice Drop multiple plans in a single call.
+     * @dev If an empty array is passed, no spells are dropped and nothing happens as
+     *      `DsPauseLike::drop` is not called.
+     * @param _plans An array of plans to drop.
+     */
+    function drop(Plan[] calldata _plans) external {
+        for (uint256 i; i < _plans.length;) {
+            drop(_plans[i].usr, _plans[i].tag, _plans[i].fax, _plans[i].eta);
+
+            unchecked {
+                i++;
+            }
+        }
     }
 }

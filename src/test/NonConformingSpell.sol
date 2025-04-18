@@ -36,5 +36,3 @@ contract NonConformingSpell {
         return pause.exec(usr, tag, fax, eta);
     }
 }
-
-

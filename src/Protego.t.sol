@@ -47,8 +47,7 @@ interface GemLike {
     function transferFrom(address, address, uint256) external returns (bool);
 }
 
-struct BadSpells {
-    address badSpell;
+struct BadSpell {
     address action;
     bytes32 tag;
     bytes sig;
@@ -74,7 +73,7 @@ contract ProtegoTest is DssTest {
     }
 
     function testPause() public view {
-        assertEq(protego.pause(), pause);
+        assertEq(protego.pause(), pause, "Pause address is incorrect");
     }
 
     function testDeployDropSpell() public {
@@ -123,8 +122,8 @@ contract ProtegoTest is DssTest {
         assertEq(id, protego.id(usr, tag, sig, eta), "Invalid id from params");
     }
 
-    // Test drop of spell created with params
-    function testDropSpellParams() public {
+    // Test drop of spell created with params using a EmergencyDropSpell
+    function testDropSpellParamsUsingEmergencyDropSpell() public {
         address usr = address(0x1337);
         bytes32 tag = keccak256("Bad spell");
         bytes memory sig = abi.encodeWithSignature("destroy(bool)", true);
@@ -149,12 +148,58 @@ contract ProtegoTest is DssTest {
         assertFalse(protego.planned(usr, tag, sig, eta), "After drop spell: spell still planned");
     }
 
-    // Test drop anything by lifting Protego to hat
-    function testDropAllSpellsParams() public {
-        uint256 iter = 10;
-        BadSpells[] memory badSpells = new BadSpells[](iter);
+    // Test dropping a single spell by lifting Protego to hat
+    function testDropSingleSpellParamsWithHat() public {
+        ConformingSpell badSpell = new ConformingSpell(pause, end);
+        _vote(address(badSpell));
+        badSpell.schedule();
 
-        for (uint256 i = 0; i < iter; i++) {
+        address usr = badSpell.action();
+        bytes32 tag = badSpell.tag();
+        bytes memory sig = badSpell.sig();
+        uint256 eta = badSpell.eta();
+
+        assertTrue(protego.planned(usr, tag, sig, eta), "Before drop spell: not planned");
+
+        _vote(address(protego));
+
+        vm.expectEmit(true, true, true, true);
+        emit Drop(protego.id(usr, tag, sig, eta));
+        protego.drop(usr, tag, sig, eta);
+
+        assertFalse(protego.planned(usr, tag, sig, eta), "After drop spell: still planned");
+
+        // After Protego loses the hat, it can no longer drop spells
+        _vote(address(0));
+        vm.expectRevert("ds-auth-unauthorized");
+        protego.drop(usr, tag, sig, eta);
+    }
+
+    function testDropEmptyArray() public {
+        Protego.Plan[] memory plans = new Protego.Plan[](0);
+        // Start recording logs.
+        vm.recordLogs();
+        // Start recording storage accesses.
+        vm.record();
+
+        // If an empty array is passed, the call succeeds but nothing happens as no `DsPauseLike::drop` is called.
+        protego.drop(plans);
+
+        // Check that no events are emitted.
+        assertEq(vm.getRecordedLogs().length, 0, "After drop: unexpected logs were emitted");
+
+        // Get all storage accesses since `vm.record()` was called.
+        (, bytes32[] memory writeSlots) = vm.accesses(address(pause));
+        // Check that DsPause's storage stays unchanged.
+        assertEq(writeSlots.length, 0, "After drop: unexpected write slot");
+    }
+
+    // Fuzz test dropping multiple spells by lifting Protego to hat
+    function testFuzzDropManySpellsParamsWithHat(uint256 iter) public {
+        iter = bound(iter, 1, 50);
+        BadSpell[] memory badSpells = new BadSpell[](iter);
+
+        for (uint256 i; i < iter; i++) {
             ConformingSpell badSpell = new ConformingSpell(pause, end);
             _vote(address(badSpell));
             badSpell.schedule();
@@ -164,23 +209,40 @@ contract ProtegoTest is DssTest {
             badSpells[i].sig = badSpell.sig();
             badSpells[i].eta = badSpell.eta();
 
-            assertTrue(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
+            assertTrue(
+                protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta),
+                "Before drop spell: not planned"
+            );
         }
 
         _vote(address(protego));
 
-        for (uint256 i = 0; i < iter; i++) {
+        Protego.Plan[] memory plans = new Protego.Plan[](iter);
+
+        for (uint256 i; i < iter; i++) {
+            plans[i] = Protego.Plan({
+                usr: badSpells[i].action,
+                tag: badSpells[i].tag,
+                fax: badSpells[i].sig,
+                eta: badSpells[i].eta
+            });
             vm.expectEmit(true, true, true, true);
             emit Drop(protego.id(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
-            protego.drop(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta);
+        }
 
-            assertFalse(protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta));
+        protego.drop(plans);
+
+        for (uint256 i; i < iter; i++) {
+            assertFalse(
+                protego.planned(badSpells[i].action, badSpells[i].tag, badSpells[i].sig, badSpells[i].eta),
+                "After drop spell: still planned"
+            );
         }
 
         // After Protego loses the hat, it can no longer drop spells
         _vote(address(0));
         vm.expectRevert("ds-auth-unauthorized");
-        protego.drop(badSpells[0].action, badSpells[0].tag, badSpells[0].sig, badSpells[0].eta);
+        protego.drop(plans);
     }
 
     function _vote(address spell_) internal {
@@ -195,7 +257,7 @@ contract ProtegoTest is DssTest {
             chief.vote(slate);
             chief.lift(spell_);
         }
-        assertEq(chief.hat(), spell_);
+        assertEq(chief.hat(), spell_, "spell is not the hat");
     }
 
     event Deploy(address dropSpell);

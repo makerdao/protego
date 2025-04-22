@@ -1,102 +1,146 @@
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
+#!/usr/bin/env node
+
+import { Command, Option } from "commander";
+import chalk from "chalk";
+import yoctoSpinner from "yocto-spinner";
+import figlet from "figlet";
 import { ethers } from "ethers";
 import { table } from "table";
 import { fetchPausePlans } from "./fetchPausePlans.js";
 import defaults from "./defaults.js";
+import p from "./package.json" with { type: "json" };
 
-const argv = yargs(hideBin(process.argv))
-  .option("pause-address", {
-    type: "string",
-    description: "MCD_PAUSE contract address",
-    default: defaults.MCD_PAUSE_ADDRESS,
-  })
-  .option("status", {
-    alias: "s",
-    type: "string",
-    description: "Filter by status: PENDING, DROPPED, EXECUTED or ALL",
-    choices: ["PENDING", "DROPPED", "EXECUTED", "ALL"],
-    default: defaults.STATUS,
-  })
-  .option("from-block", {
-    alias: "b",
-    type: "number",
-    description: "Display spells from a given block",
-    default: defaults.FROM_BLOCK,
-  })
-  .option("rpc-url", {
-    alias: ["fork-url", "f"],
-    type: "string",
-    description:
-      "RPC URL - Falls back to `ETH_RPC_URL` env var, then to a public provider",
-    default: process.env.ETH_RPC_URL || defaults.ETH_RPC_URL,
-  })
-  .help(true)
-  .alias("help", "h").argv;
+const program = new Command();
 
-const tableConfig = {
-  columns: {
-    0: { width: 21, wrapWord: true },
-    1: { width: 33, wrapWord: true },
-    2: { width: 21, wrapWord: true },
-    3: { width: 33, wrapWord: true },
-    4: { width: 10, wrapWord: true },
-    5: { width: 10, wrapWord: true },
-    6: { width: 10, wrapWord: true },
-  },
-};
+program
+    .name("Protego CLI")
+    .description(figlet.textSync("Protego", { horizontalLayout: "full" }))
+    .version(p.version)
+    .addOption(
+        new Option("-r, --rpc-url <rpc-url>", "Ethereum Node RPC URL")
+            .default(defaults.ETH_RPC_URL)
+            .env("ETH_RPC_URL"),
+    )
+    .addOption(
+        new Option(
+            "-b, --from-block <block-number>",
+            "Display spells from a given block",
+        )
+            .argParser(Number.parseInt)
+            .default(defaults.FROM_BLOCK),
+    )
+    .addOption(
+        new Option("-s, --status <status>", "Filter by status")
+            .choices(["PENDING", "DROPPED", "EXECUTED", "ALL"])
+            .default(defaults.STATUS),
+    )
+    .addOption(
+        new Option(
+            "--pause-address <address>",
+            "MCD_PAUSE contract address",
+        ).default(defaults.MCD_PAUSE_ADDRESS),
+    )
+    .addOption(
+        new Option("-f, --format <format>", "Output format")
+            .choices(["TABLE", "JSON"])
+            .default(defaults.FORMAT),
+    )
+    .showHelpAfterError()
+    .action(run);
 
-function createTable(events) {
-  let tableData = events.map((event) => [
-    event.guy,
-    event.hash,
-    event.usr,
-    event.tag,
-    event.fax,
-    event.eta,
-    event.status,
-  ]);
+program.parse();
 
-  tableData.sort((a, b) => {
-    const etaA = BigInt(a[5]);
-    const etaB = BigInt(b[5]);
-    return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
-  });
-
-  if (tableData.length === 0) {
-    return "No records to display.";
-  }
-
-  tableData.unshift(["SPELL", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"]);
-
-  return table(tableData, tableConfig);
-}
-
-async function main() {
-  try {
-    if (argv.rpcUrl == "mainnet") {
-      console.warn(
-        "Falling back to a public provider. For best experience set a custom RPC URL.",
-      );
+async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
+    if (rpcUrl == "mainnet") {
+        console.warn(
+            chalk.yellow(
+                "🟡 WARNING: Falling back to a public provider. For a better experience, set a custom RPC URL with the --rpc-url <rpc-url> option or the ETH_RPC_URL env variable.",
+            ),
+        );
     }
 
-    const pause = new ethers.Contract(
-      argv.pauseAddress,
-      defaults.MCD_PAUSE_ABI,
-      ethers.getDefaultProvider(argv.rpcUrl),
-    );
+    const spinner = yoctoSpinner();
 
-    const events = await fetchPausePlans(pause, {
-      fromBlock: argv.fromBlock,
-      status: argv.status,
-    });
+    if (process.stdout.isTTY) spinner.start("Fetching pause plans...");
+    try {
+        const pause = new ethers.Contract(
+            pauseAddress,
+            defaults.MCD_PAUSE_ABI,
+            ethers.getDefaultProvider(rpcUrl),
+        );
 
-    const table = createTable(events);
+        const plans = await fetchPausePlans(pause, { fromBlock, status });
+        if (process.stdout.isTTY) spinner.success("Done!");
 
-    console.log(table);
-  } catch (error) {
-    console.error("An error occurred:", error);
-  }
+        if (format == "TABLE") {
+            console.log(createTable(plans));
+        } else {
+            console.log(createJson(plans));
+        }
+    } catch (error) {
+        if (process.stdout.isTTY) spinner.error("Failed!");
+        console.error(chalk.red("An error occurred:", error));
+        process.exit(1);
+    }
 }
 
-main();
+function createTable(plans) {
+    let data = plans.map((event) => [
+        event.guy,
+        event.hash,
+        event.usr,
+        event.tag,
+        event.fax,
+        event.eta,
+        colorizeStatus(event.status),
+    ]);
+
+    data.sort((a, b) => {
+        const etaA = BigInt(a[5]);
+        const etaB = BigInt(b[5]);
+        return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
+    });
+
+    if (data.length === 0) {
+        return "No records to display.";
+    }
+
+    data.unshift(
+        ["SPELL", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"].map((item) =>
+            chalk.bold.cyan(item),
+        ),
+    );
+
+    return table(data, {
+        columns: {
+            0: { width: 21, wrapWord: true },
+            1: { width: 33, wrapWord: true },
+            2: { width: 21, wrapWord: true },
+            3: { width: 33, wrapWord: true },
+            4: { width: 10, wrapWord: true },
+            5: { width: 10, wrapWord: true },
+            6: { width: 10, wrapWord: true },
+        },
+    });
+}
+
+function colorizeStatus(status) {
+    switch (status) {
+        case "PENDING":
+            return chalk.yellow(status);
+        case "DROPPED":
+            return chalk.red(status);
+        case "EXECUTED":
+            return chalk.green(status);
+        default:
+            return status;
+    }
+}
+
+function createJson(plans) {
+    return JSON.stringify(
+        plans,
+        (_, v) => (typeof v === "bigint" ? v.toString() : v),
+        2,
+    );
+}

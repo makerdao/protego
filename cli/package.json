@@ -10,7 +10,9 @@
   "exports": {
     ".": "./module.js"
   },
-  "bin": "./cli.js",
+  "bin": {
+    "protego": "cli.js"
+  },
   "dependencies": {
     "ethers": "^6.13.1",
     "table": "^6.8.2",

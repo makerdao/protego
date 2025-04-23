@@ -50,6 +50,14 @@ program
 
 program.parse();
 
+/**
+ * Runs the CLI
+ * @param {string} options.rpcUrl Ethereum Node RPC URL
+ * @param {number} options.fromBlock Display spells from a given block
+ * @param {"ALL"|"PENDING"|"DROPPED"|"EXECUTED"} options.status Filter by status
+ * @param {string} options.pauseAddress MCD_PAUSE contract address
+ * @returns {Promise<void>}
+ */
 async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
     if (rpcUrl == "mainnet") {
         console.warn(
@@ -83,6 +91,11 @@ async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
     }
 }
 
+/**
+ * Creates a spinner that only shows if stdout is a TTY
+ * @param {...any} args
+ * @returns {import("yocto-spinner").Spinner}
+ */
 function ttyOnlySpinner(...args) {
     // Only show a spinner if stdout is a TTY
     if (process.stdout.isTTY) {
@@ -103,6 +116,11 @@ function ttyOnlySpinner(...args) {
     };
 }
 
+/**
+ * Converts a list of pause plans to a formatted table
+ * @param {import("./fetchPausePlans").PausePlan[]} plans
+ * @returns {string}
+ */
 function createTable(plans) {
     let data = plans.map((event) => [
         event.guy,
@@ -143,6 +161,11 @@ function createTable(plans) {
     });
 }
 
+/**
+ * Colorizes a status string
+ * @param {string} status
+ * @returns {string}
+ */
 function colorizeStatus(status) {
     switch (status) {
         case "PENDING":
@@ -156,6 +179,11 @@ function colorizeStatus(status) {
     }
 }
 
+/**
+ * Converts a list of pause plans to a JSON string
+ * @param {import("./fetchPausePlans").PausePlan[]} plans
+ * @returns {string}
+ */
 function createJson(plans) {
     return JSON.stringify(
         plans,

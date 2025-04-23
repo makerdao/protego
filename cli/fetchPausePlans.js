@@ -7,6 +7,12 @@ const EXEC_TOPIC =
 const DROP_TOPIC =
     "0x162c7de300000000000000000000000000000000000000000000000000000000";
 
+/**
+ * Decodes a LogNote event
+ * @param {import("ethers/contract").UndecodedEventLog} log
+ * @param {import("ethers/contract").Contract} contract
+ * @returns {object}
+ */
 export function decodeLogNote(log, contract) {
     const eventFragment = contract.interface.getEvent("LogNote");
     return contract.interface
@@ -14,6 +20,13 @@ export function decodeLogNote(log, contract) {
         .toObject();
 }
 
+/**
+ * Decodes a call
+ * @param {string} sig
+ * @param {string} fax
+ * @param {import("ethers/contract").Contract} contract
+ * @returns {object}
+ */
 export function decodeCallParams(sig, fax, contract) {
     const functionFragment = contract.interface.getFunction(sig);
     return contract.interface
@@ -21,6 +34,14 @@ export function decodeCallParams(sig, fax, contract) {
         .toObject();
 }
 
+/**
+ * Hashes a pause plan
+ * @param {string} params.usr Pause plan user
+ * @param {string} params.tag Pause plan tag
+ * @param {string} params.fax Pause plan fax
+ * @param {string|bigint} params.eta Paule plan ETA
+ * @returns {string}
+ */
 export function hash(params) {
     const abiCoder = new ethers.AbiCoder();
     const types = ["address", "bytes32", "bytes", "uint256"];
@@ -33,6 +54,12 @@ export function hash(params) {
     return ethers.keccak256(encoded);
 }
 
+/**
+ * Fetches events from the Pause contract
+ * @param {number} fromBlock Fetches events from a given block
+ * @param {import("ethers/contract").Contract} contract The Pause contract instance
+ * @returns {Promise<object[]>}
+ */
 async function fetchEvents(fromBlock, contract) {
     return await contract.queryFilter(
         [[PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC]],
@@ -40,6 +67,12 @@ async function fetchEvents(fromBlock, contract) {
     );
 }
 
+/**
+ * Processes an event
+ * @param {import("ethers/contract").UndecodedEventLog} event
+ * @param {import("ethers/contract").Contract} contract
+ * @returns {object}
+ */
 export function processEvent(event, contract) {
     const decoded = decodeLogNote(event, contract);
     const decodedCall = decodeCallParams(
@@ -55,6 +88,24 @@ export function processEvent(event, contract) {
     };
 }
 
+/**
+ * @typedef {object} PausePlan
+ * @property {string} hash
+ * @property {string} guy
+ * @property {string} usr
+ * @property {string} tag
+ * @property {string} fax
+ * @property {string|bigint} eta
+ * @property {"ALL"|"PENDING"|"DROPPED"|"EXECUTED"} status
+ */
+
+/**
+ * Parses the fetched Pause events
+ * @param {import("ethers/contract").UndecodedEventLog[]} events
+ * @param {"ALL"|"PENDING"|"DROPPED"|"EXECUTED"} status
+ * @param {import("ethers/contract").Contract} contract
+ * @returns {PausePlan[]}
+ */
 function parseEvents(events, status, contract) {
     const decodedEvents = events.map((event) => processEvent(event, contract));
     const hashMap = new Map();
@@ -93,6 +144,13 @@ function parseEvents(events, status, contract) {
     return eventsList;
 }
 
+/**
+ * Fetches pause plans
+ * @param {import("ethers/contract").Contract} contractInstance The Pause contract instance
+ * @param {number} [options.fromBlock=0] Display spells from a given block
+ * @param {"ALL"|"PENDING"|"DROPPED"|"EXECUTED"} [options.status="ALL"] Filter by status
+ * @return {Promise<PausePlan[]>}
+ */
 export async function fetchPausePlans(
     contractInstance,
     { fromBlock = 0, status = "ALL" } = {},

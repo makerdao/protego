@@ -33,7 +33,7 @@ export function hash(params) {
     return ethers.keccak256(encoded);
 }
 
-async function fetchEvents(contract, fromBlock) {
+async function fetchEvents(fromBlock, contract) {
     return await contract.queryFilter(
         [[PLOT_TOPIC, EXEC_TOPIC, DROP_TOPIC]],
         fromBlock,
@@ -97,6 +97,6 @@ export async function fetchPausePlans(
     contractInstance,
     { fromBlock = 0, status = "ALL" } = {},
 ) {
-    const events = await fetchEvents(contractInstance, fromBlock);
+    const events = await fetchEvents(fromBlock, contractInstance);
     return parseEvents(events, status, contractInstance);
 }

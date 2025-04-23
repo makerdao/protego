@@ -4,27 +4,30 @@
 
 ### CLI
 
-```bash
-npx @dewiz-xyz/protego --status PENDING --from-block 19420069 --rpc-url <rpc-url> --pause-address <addr>
+```
+npx @dewiz-xyz/protego [-V -h] | --rpc-url <rpc-url> [--from-block 19420069] [--status PENDING] [--pause-address <addr>] [--format TABLE]
 ```
 
 All options:
 
 ```
+Usage: Protego CLI [options]
+
+  ____                   _
+ |  _ \   _ __    ___   | |_    ___    __ _    ___
+ | |_) | | '__|  / _ \  | __|  / _ \  / _` |  / _ \
+ |  __/  | |    | (_) | | |_  |  __/ | (_| | | (_) |
+ |_|     |_|     \___/   \__|  \___|  \__, |  \___/
+                                      |___/
+
 Options:
-      --version              Show version number                   [boolean]
-      --pause-address        MCD_PAUSE contract address
-            [string] [default: "0xbE286431454714F511008713973d3B053A2d38f3"]
-  -s, --status               Filter by status: PENDING, DROPPED, EXECUTED or
-                              ALL
-  [string] [choices: "PENDING", "DROPPED", "EXECUTED", "ALL"] [default: "ALL
-                                                                          "]
-  -b, --from-block           Display spells from a given block
-                                                       [number] [default: 0]
-  -f, --rpc-url, --fork-url  RPC URL - Falls back to `ETH_RPC_URL` env var,
-                             then to a public provider
-                                               [string] [default: "mainnet"]
-  -h, --help                 Show help                             [boolean]
+  -V, --version                    output the version number
+  -r, --rpc-url <rpc-url>          Ethereum Node RPC URL (env: ETH_RPC_URL)
+  -b, --from-block <block-number>  Display spells from a given block (default: 0)
+  -s, --status <status>            Filter by status (choices: "PENDING", "DROPPED", "EXECUTED", "ALL", default: "ALL")
+  --pause-address <address>        MCD_PAUSE contract address (default: "0xbE286431454714F511008713973d3B053A2d38f3")
+  -f, --format <format>            Output format (choices: "TABLE", "JSON", default: "TABLE")
+  -h, --help                       display help for command
 ```
 
 #### Output

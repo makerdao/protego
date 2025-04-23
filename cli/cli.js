@@ -18,8 +18,8 @@ program
     .version(p.version)
     .addOption(
         new Option("-r, --rpc-url <rpc-url>", "Ethereum Node RPC URL")
-            .default(defaults.ETH_RPC_URL)
-            .env("ETH_RPC_URL"),
+            .env("ETH_RPC_URL")
+            .makeOptionMandatory(),
     )
     .addOption(
         new Option(

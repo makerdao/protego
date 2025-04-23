@@ -122,21 +122,21 @@ function ttyOnlySpinner(...args) {
  * @returns {string}
  */
 function createTable(plans) {
-    let data = plans.map((event) => [
-        event.guy,
-        event.hash,
-        event.usr,
-        event.tag,
-        event.fax,
-        event.eta,
-        colorizeStatus(event.status),
-    ]);
-
-    data.sort((a, b) => {
-        const etaA = BigInt(a[5]);
-        const etaB = BigInt(b[5]);
-        return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
-    });
+    const data = [...plans]
+        .sort((a, b) => {
+            const etaA = BigInt(a.eta);
+            const etaB = BigInt(b.eta);
+            return etaB > etaA ? 1 : etaB < etaA ? -1 : 0;
+        })
+        .map((event) => [
+            colorize(event.status, event.guy),
+            colorize(event.status, event.hash),
+            colorize(event.status, event.usr),
+            colorize(event.status, event.tag),
+            colorize(event.status, event.fax),
+            colorize(event.status, event.eta),
+            colorize(event.status),
+        ]);
 
     if (data.length === 0) {
         return "No records to display.";
@@ -163,17 +163,18 @@ function createTable(plans) {
 
 /**
  * Colorizes a status string
- * @param {string} status
+ * @param {string} status The status to define the color
+ * @param {string} [text=status] The text to colorize
  * @returns {string}
  */
-function colorizeStatus(status) {
+function colorize(status, text = status) {
     switch (status) {
         case "PENDING":
-            return chalk.yellow(status);
+            return chalk.yellow(String(text));
         case "DROPPED":
-            return chalk.red(status);
+            return chalk.red(String(text));
         case "EXECUTED":
-            return chalk.green(status);
+            return chalk.green(String(text));
         default:
             return status;
     }

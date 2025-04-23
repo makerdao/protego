@@ -59,9 +59,8 @@ async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
         );
     }
 
-    const spinner = yoctoSpinner();
+    const spinner = ttyOnlySpinner().start("Fetching pause plans...");
 
-    if (process.stdout.isTTY) spinner.start("Fetching pause plans...");
     try {
         const pause = new ethers.Contract(
             pauseAddress,
@@ -70,7 +69,7 @@ async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
         );
 
         const plans = await fetchPausePlans(pause, { fromBlock, status });
-        if (process.stdout.isTTY) spinner.success("Done!");
+        spinner.success("Done!");
 
         if (format == "TABLE") {
             console.log(createTable(plans));
@@ -78,10 +77,30 @@ async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
             console.log(createJson(plans));
         }
     } catch (error) {
-        if (process.stdout.isTTY) spinner.error("Failed!");
+        spinner.error("Failed!");
         console.error(chalk.red("An error occurred:", error));
         process.exit(1);
     }
+}
+
+function ttyOnlySpinner(...args) {
+    // Only show a spinner if stdout is a TTY
+    if (process.stdout.isTTY) {
+        return yoctoSpinner(...args);
+    }
+
+    // If not a TTY, return a dummy spinner with empty chainable methods
+    return {
+        start() {
+            return this;
+        },
+        success() {
+            return this;
+        },
+        error() {
+            return this;
+        },
+    };
 }
 
 function createTable(plans) {

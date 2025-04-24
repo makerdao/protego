@@ -11,10 +11,10 @@ import { fetchPausePlans as _fetchPausePlansImpl } from "./fetchPausePlans.js";
  * @returns {Promise<import("./fetchPausePlans").PausePlan[]>}
  */
 export async function fetchPausePlans({
-    rpcUrl,
+    rpcUrl = defaults.RPC_URL,
     pauseAddress = defaults.MCD_PAUSE_ADDRESS,
-    fromBlock = defaults.fromBlock,
-    status = defaults.status,
+    fromBlock = defaults.FROM_BLOCK,
+    status = defaults.STATUS,
 } = {}) {
     const pause = new ethers.Contract(
         pauseAddress,

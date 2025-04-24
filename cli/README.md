@@ -22,7 +22,7 @@ Usage: Protego CLI [options]
 
 Options:
   -V, --version                    output the version number
-  -r, --rpc-url <rpc-url>          Ethereum Node RPC URL (default: "https://mainnet.gateway.tenderly.co", 
+  -r, --rpc-url <rpc-url>          Ethereum Node RPC URL (default: "https://mainnet.gateway.tenderly.co",
                                                           env: ETH_RPC_URL)
   -b, --from-block <block-number>  Display spells from a given block (default: 0)
   -s, --status <status>            Filter by status (choices: "PENDING", "DROPPED", "EXECUTED", "ALL", default: "ALL")

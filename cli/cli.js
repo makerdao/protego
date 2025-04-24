@@ -19,7 +19,7 @@ program
     .addOption(
         new Option("-r, --rpc-url <rpc-url>", "Ethereum Node RPC URL")
             .env("ETH_RPC_URL")
-            .makeOptionMandatory(),
+            .default(defaults.RPC_URL),
     )
     .addOption(
         new Option(
@@ -59,10 +59,10 @@ program.parse();
  * @returns {Promise<void>}
  */
 async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
-    if (rpcUrl == "mainnet") {
+    if (rpcUrl === defaults.RPC_URL) {
         console.warn(
             chalk.yellow(
-                "🟡 WARNING: Falling back to a public provider. For a better experience, set a custom RPC URL with the --rpc-url <rpc-url> option or the ETH_RPC_URL env variable.",
+                `🟡 WARNING: Falling back to a public provider: ${rpcUrl}. For a better experience, set a custom RPC URL with the --rpc-url <rpc-url> option or the ETH_RPC_URL env variable.`,
             ),
         );
     }
@@ -79,7 +79,7 @@ async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
         const plans = await fetchPausePlans(pause, { fromBlock, status });
         spinner.success("Done!");
 
-        if (format == "TABLE") {
+        if (format === "TABLE") {
             console.log(createTable(plans));
         } else {
             console.log(createJson(plans));

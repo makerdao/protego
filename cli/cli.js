@@ -84,6 +84,8 @@ async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
         } else {
             console.log(createJson(plans));
         }
+
+        process.exit(0)
     } catch (error) {
         spinner.error("Failed!");
         console.error(chalk.red("An error occurred:", error));

@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@dewiz-xyz/protego",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "scripts": {
     "help": "node --no-warnings list.js --help",
     "list": "node --no-warnings list.js",

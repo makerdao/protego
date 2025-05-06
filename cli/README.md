@@ -5,7 +5,7 @@
 ### CLI
 
 ```
-npx @dewiz-xyz/protego [-V -h] | --rpc-url <rpc-url> [--from-block 19420069] [--status PENDING] [--pause-address <addr>] [--format TABLE]
+npx @dewiz-xyz/protego@latest [-V -h] | --rpc-url <rpc-url> [--from-block 19420069] [--status PENDING] [--pause-address <addr>] [--format TABLE]
 ```
 
 All options:

@@ -46,7 +46,14 @@ program
             .default(defaults.FORMAT),
     )
     .showHelpAfterError()
-    .action(run);
+    .action(run)
+    .addCommand(
+        new Command('encode')
+            .description('Encode calldata to cancel Spells (Etherscan/Tenderly input)')
+            .action(() => {
+                console.log('TODO: Call encode method.');
+            })
+    );
 
 program.parse();
 

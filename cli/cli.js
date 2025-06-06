@@ -152,7 +152,7 @@ function createTable(plans) {
     }
 
     data.unshift(
-        ["SPELL", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"].map((item) =>
+        ["GUY", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"].map((item) =>
             chalk.bold.cyan(item),
         ),
     );

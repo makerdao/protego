@@ -6,6 +6,7 @@ import yoctoSpinner from "yocto-spinner";
 import figlet from "figlet";
 import { ethers } from "ethers";
 import { table } from "table";
+import prompts from "prompts";
 import { fetchPausePlans } from "./fetchPausePlans.js";
 import defaults from "./defaults.js";
 import p from "./package.json" with { type: "json" };
@@ -13,6 +14,7 @@ import p from "./package.json" with { type: "json" };
 const program = new Command();
 
 program
+    .storeOptionsAsProperties(false)
     .name("Protego CLI")
     .description(figlet.textSync("Protego", { horizontalLayout: "full" }))
     .version(p.version)
@@ -50,9 +52,7 @@ program
     .addCommand(
         new Command('encode')
             .description('Encode calldata to cancel Spells (Etherscan/Tenderly input)')
-            .action(() => {
-                console.log('TODO: Call encode method.');
-            })
+            .action(encode)
     );
 
 program.parse();
@@ -200,4 +200,71 @@ function createJson(plans) {
         (_, v) => (typeof v === "bigint" ? v.toString() : v),
         2,
     );
+}
+
+
+/**
+ * Runs the CLI Encode command
+ * @param {object} localOptions
+ * @param {Command} command
+ * @returns {Promise<void>}
+ */
+async function encode(localOptions, command) {
+    const globalParentOptions = command.parent.opts();
+    const { rpcUrl, fromBlock, pauseAddress } = globalParentOptions;
+
+    if (rpcUrl === defaults.RPC_URL) {
+        console.warn(
+            chalk.yellow(
+                `🟡 WARNING: Falling back to a public provider: ${rpcUrl}. For a better experience, set a custom RPC URL with the --rpc-url <rpc-url> option or the ETH_RPC_URL env variable.`,
+            ),
+        );
+    }
+
+    const spinner = ttyOnlySpinner().start("Fetching pending pause plans...");
+
+    try {
+        const pause = new ethers.Contract(
+            pauseAddress,
+            defaults.MCD_PAUSE_ABI,
+            ethers.getDefaultProvider(rpcUrl),
+        );
+
+        const status = "PENDING";
+        const plans = await fetchPausePlans(pause, { fromBlock, status });
+        spinner.success("Done!");
+
+        if (plans.length === 0) {
+            console.log(chalk.yellow("No pending spells found to encode."));
+            return;
+        }
+
+        const response = await prompts([
+            {
+                type: 'multiselect',
+                name: 'plans',
+                message: 'Select spells to be encoded for `drop(Plan[] calldata _plans)`',
+                choices: plans.map(plan => ({
+                    title: `hash: ${plan.hash} | usr: ${plan.usr} | eta: ${plan.eta}`,
+                    value: plan.hash
+                })),
+            }
+        ]);
+
+        const selectedPlans = plans
+            .filter(plan => response.plans.includes(plan.hash))
+            .map(plan => [
+                plan.usr,
+                plan.tag,
+                plan.fax,
+                plan.eta.toString()
+            ]);
+
+        console.log('\n Encoded plans:');
+        console.log(chalk.green(JSON.stringify(selectedPlans)));
+    } catch (error) {
+        spinner.error("Failed!");
+        console.error(chalk.red("An error occurred:", error));
+        process.exit(1);
+    }
 }

@@ -5,6 +5,7 @@ script = 'script'
 libs = ["lib"]
 solc = '0.8.16'
 optimizer = true
+evm_version = 'shanghai'
 
 fs_permissions = [
     { access = "read", path = "./out/" },

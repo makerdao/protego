@@ -50,9 +50,11 @@ program
     .showHelpAfterError()
     .action(run)
     .addCommand(
-        new Command('encode')
-            .description('Encode calldata to cancel Spells (Etherscan/Tenderly input)')
-            .action(encode)
+        new Command("encode")
+            .description(
+                "Encode calldata to cancel Spells (Etherscan/Tenderly input)",
+            )
+            .action(encode),
     );
 
 program.parse();
@@ -202,7 +204,6 @@ function createJson(plans) {
     );
 }
 
-
 /**
  * Runs the CLI Encode command
  * @param {object} localOptions
@@ -241,26 +242,22 @@ async function encode(localOptions, command) {
 
         const response = await prompts([
             {
-                type: 'multiselect',
-                name: 'plans',
-                message: 'Select spells to be encoded for `drop(Plan[] calldata _plans)`',
-                choices: plans.map(plan => ({
+                type: "multiselect",
+                name: "plans",
+                message:
+                    "Select spells to be encoded for `drop(Plan[] calldata _plans)`",
+                choices: plans.map((plan) => ({
                     title: `hash: ${plan.hash} | usr: ${plan.usr} | eta: ${plan.eta}`,
-                    value: plan.hash
+                    value: plan.hash,
                 })),
-            }
+            },
         ]);
 
         const selectedPlans = plans
-            .filter(plan => response.plans.includes(plan.hash))
-            .map(plan => [
-                plan.usr,
-                plan.tag,
-                plan.fax,
-                plan.eta.toString()
-            ]);
+            .filter((plan) => response.plans.includes(plan.hash))
+            .map((plan) => [plan.usr, plan.tag, plan.fax, plan.eta.toString()]);
 
-        console.log('\n Encoded plans:');
+        console.log("\n Encoded plans:");
         console.log(chalk.green(JSON.stringify(selectedPlans)));
     } catch (error) {
         spinner.error("Failed!");

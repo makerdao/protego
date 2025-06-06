@@ -11,11 +11,13 @@ The Protego CLI supports the following commands:
 This is the default command when no specific command is provided. It lists spells based on the provided filters.
 
 **Usage:**
+
 ```
 npx @dewiz-xyz/protego@latest [-V -h] | --rpc-url <rpc-url> [--from-block 19420069] [--status PENDING] [--pause-address <addr>] [--format TABLE]
 ```
 
 **All options:**
+
 ```
 Usage: Protego CLI [options]
 
@@ -40,6 +42,7 @@ Commands:
 ```
 
 **Output:**
+
 ```
 ╔═══════════════════════╤═══════════════════════════════════╤═══════════════════════╤═══════════════════════════════════╤════════════╤════════════╤════════════╗
 ║ GUY                   │ HASH                              │ USR                   │ TAG                               │ FAX        │ ETA        │ STATUS     ║
@@ -81,27 +84,31 @@ The `encode` command helps users generate the necessary calldata to cancel pendi
 It fetches all `PENDING` spells based on the global options provided (like `--rpc-url`, `--from-block`, `--pause-address`) and then interactively prompts the user to select which spells they want to encode for cancellation.
 
 **Usage:**
+
 ```bash
 npx @dewiz-xyz/protego@latest encode [global options]
 # or when running locally
 node cli encode [global options]
 ```
+
 Global options are the same as for the default command (e.g., `--rpc-url`, `--from-block`).
 
 **Example:**
 
 To encode pending spells using default RPC and from the default block:
+
 ```bash
 node cli encode
 ```
 
 To encode pending spells using a specific RPC and from block `19500000`:
+
 ```bash
 node cli encode --rpc-url <your-rpc-url> --from-block 19500000
 ```
 
 ```
-? Select spells to be encoded for `drop(Plan[] calldata _plans)` ›  
+? Select spells to be encoded for `drop(Plan[] calldata _plans)` ›
 Instructions:
     ↑/↓: Highlight option
     ←/→/[space]: Toggle selection
@@ -124,9 +131,24 @@ Instructions:
 After selecting the spells, the command will output a JSON array. Each element in the array is another array representing a plan, formatted as `[usr, tag, fax, eta]`.
 
 Example output:
+
 ```json
-[["0x5Bf5A2fCC196CEA49593203b7e988103F3ed46AE","0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb","0xc0406226","1749170028"],["0xE4407ef9Ef4BDA23f2b63B4ED8DEAeF3a78aA9A7","0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb","0xc0406226","1749170028"]]
+[
+  [
+    "0x5Bf5A2fCC196CEA49593203b7e988103F3ed46AE",
+    "0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb",
+    "0xc0406226",
+    "1749170028"
+  ],
+  [
+    "0xE4407ef9Ef4BDA23f2b63B4ED8DEAeF3a78aA9A7",
+    "0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb",
+    "0xc0406226",
+    "1749170028"
+  ]
+]
 ```
+
 This output can be directly used as the `_plans` parameter for the `drop` function.
 
 ### As a dependency
@@ -223,4 +245,4 @@ node cli --status DROPPED --from-block 19420069
 
 ```bash
 node cli --help
-````
+```

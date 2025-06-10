@@ -32,23 +32,29 @@ program
             .default(defaults.FROM_BLOCK),
     )
     .addOption(
-        new Option("-s, --status <status>", "Filter by status")
-            .choices(["PENDING", "DROPPED", "EXECUTED", "ALL"])
-            .default(defaults.STATUS),
-    )
-    .addOption(
         new Option(
             "--pause-address <address>",
             "MCD_PAUSE contract address",
         ).default(defaults.MCD_PAUSE_ADDRESS),
     )
-    .addOption(
-        new Option("-f, --format <format>", "Output format")
-            .choices(["TABLE", "JSON"])
-            .default(defaults.FORMAT),
-    )
     .showHelpAfterError()
-    .action(run)
+    .addCommand(
+        new Command("list")
+            .description(
+                "List pending spells by status",
+            )
+            .addOption(
+                new Option("-s, --status <status>", "Filter by status")
+                    .choices(["PENDING", "DROPPED", "EXECUTED", "ALL"])
+                    .default(defaults.STATUS),
+            )            
+            .addOption(
+                new Option("-f, --format <format>", "Output format")
+                    .choices(["TABLE", "JSON"])
+                    .default(defaults.FORMAT),
+            )                
+            .action(list),
+    )
     .addCommand(
         new Command("encode")
             .description(
@@ -67,7 +73,9 @@ program.parse();
  * @param {string} options.pauseAddress MCD_PAUSE contract address
  * @returns {Promise<void>}
  */
-async function run({ rpcUrl, fromBlock, status, pauseAddress, format }) {
+async function list({ status, format }, command ) {
+    const { rpcUrl, fromBlock, pauseAddress } = command.parent.opts();    
+
     if (rpcUrl === defaults.RPC_URL) {
         console.warn(
             chalk.yellow(

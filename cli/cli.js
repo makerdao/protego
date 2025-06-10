@@ -211,8 +211,7 @@ function createJson(plans) {
  * @returns {Promise<void>}
  */
 async function encode(localOptions, command) {
-    const globalParentOptions = command.parent.opts();
-    const { rpcUrl, fromBlock, pauseAddress } = globalParentOptions;
+    const { rpcUrl, fromBlock, pauseAddress } = command.parent.opts();
 
     if (rpcUrl === defaults.RPC_URL) {
         console.warn(
@@ -231,13 +230,12 @@ async function encode(localOptions, command) {
             ethers.getDefaultProvider(rpcUrl),
         );
 
-        const status = "PENDING";
-        const plans = await fetchPausePlans(pause, { fromBlock, status });
+        const plans = await fetchPausePlans(pause, { fromBlock, status: "PENDING" });
         spinner.success("Done!");
 
         if (plans.length === 0) {
             console.log(chalk.yellow("No pending spells found to encode."));
-            return;
+            process.exit(1);
         }
 
         const response = await prompts([

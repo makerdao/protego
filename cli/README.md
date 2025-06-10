@@ -6,20 +6,26 @@
 
 The Protego CLI supports the following commands:
 
-**1. List Spells (Default Command)**
+**1. `list` command**
 
-This is the default command when no specific command is provided. It lists spells based on the provided filters.
+This command lists spells based on the provided filters. It utilizes global options (like `--rpc-url`, `--from-block`, `--pause-address`) for context and has its own specific options (`--status`, `--format`) to control its behavior.
 
-**Usage:**
+**Usage Examples:**
+
+To list all `PENDING` spells from block `19420069` using default RPC and table format:
+```bash
+npx @dewiz-xyz/protego@latest list --status PENDING --from-block 19420069
+```
+
+To list `ALL` spells from the default block, using a custom RPC URL, and outputting in `JSON` format:
+```bash
+npx @dewiz-xyz/protego@latest list --rpc-url <your-custom-rpc-url> --format JSON
+```
+
+**Global Options:**
 
 ```
-npx @dewiz-xyz/protego@latest [-V -h] | --rpc-url <rpc-url> [--from-block 19420069] [--status PENDING] [--pause-address <addr>] [--format TABLE]
-```
-
-**All options:**
-
-```
-Usage: Protego CLI [options]
+Usage: Protego CLI [options] [command]
 
   ____                   _
  |  _ \   _ __    ___   | |_    ___    __ _    ___
@@ -32,13 +38,26 @@ Options:
   -V, --version                    output the version number
   -r, --rpc-url <rpc-url>          Ethereum Node RPC URL (default: "https://mainnet.gateway.tenderly.co", env: ETH_RPC_URL)
   -b, --from-block <block-number>  Display spells from a given block (default: 0)
-  -s, --status <status>            Filter by status (choices: "PENDING", "DROPPED", "EXECUTED", "ALL", default: "ALL")
   --pause-address <address>        MCD_PAUSE contract address (default: "0xbE286431454714F511008713973d3B053A2d38f3")
-  -f, --format <format>            Output format (choices: "TABLE", "JSON", default: "TABLE")
   -h, --help                       display help for command
 
 Commands:
+  list [options]                   List pending spells by status
   encode                           Encode calldata to cancel Spells (Etherscan/Tenderly input)
+  help [command]                   display help for command
+```
+
+**Command Options:**
+```
+(Use `node --trace-warnings ...` to show where the warning was created)
+Usage: Protego CLI list [options]
+
+List pending spells by status
+
+Options:
+  -s, --status <status>  Filter by status (choices: "PENDING", "DROPPED", "EXECUTED", "ALL", default: "ALL")
+  -f, --format <format>  Output format (choices: "TABLE", "JSON", default: "TABLE")
+  -h, --help             display help for command
 ```
 
 **Output:**
@@ -207,11 +226,11 @@ npm i
 List plans in `MCD_PAUSE` since block 16420000
 
 ```bash
-npm run cli -- --from-block 16420000
+npm run cli -- list --from-block 16420000
 
 OR
 
-node cli --from-block 16420000
+node cli list --from-block 16420000
 ```
 
 Filter by status with `--status` flag.
@@ -220,29 +239,36 @@ Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
 Get pending plans since block 19420069
 
 ```bash
-npm run cli -- --status PENDING --from-block 19420069
+npm run cli -- list --status PENDING --from-block 19420069
 OR
-node cli --status PENDING --from-block 19420069
+node cli list --status PENDING --from-block 19420069
 ```
 
 Get executed plans since block 19420069
 
 ```bash
-npm run cli -- --status EXECUTED --from-block 19420069
+npm run cli -- list --status EXECUTED --from-block 19420069
 OR
-node cli --status EXECUTED --from-block 19420069
+node cli list --status EXECUTED --from-block 19420069
 ```
 
 Get dropped plans since block 19420069
 
 ```bash
-npm run cli -- --status DROPPED --from-block 19420069
+npm run cli -- list --status DROPPED --from-block 19420069
 OR
-node cli --status DROPPED --from-block 19420069
+node cli list --status DROPPED --from-block 19420069
+```
+
+Encode
+
+```bash
+npm run cli -- encode --from-block 19420069
+OR
+node cli encode --from-block 19420069
 ```
 
 ### 3. Help
 
 ```bash
 node cli --help
-```

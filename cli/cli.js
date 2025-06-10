@@ -10,7 +10,6 @@ import { encode } from "./encode.js";
 const program = new Command();
 
 program
-    .storeOptionsAsProperties(false)
     .name("Protego CLI")
     .description(figlet.textSync("Protego", { horizontalLayout: "full" }))
     .version(p.version)

@@ -12,7 +12,8 @@ import { ttyOnlySpinner, createJson } from "./utils.js";
  * @returns {Promise<void>}
  */
 export async function encode(localOptions, command) {
-    const { rpcUrl, fromBlock, pauseAddress } = command.parent.opts();
+
+    const { rpcUrl, fromBlock, pauseAddress } = command.optsWithGlobals();
 
     if (rpcUrl === defaults.RPC_URL) {
         console.warn(

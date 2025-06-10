@@ -93,6 +93,10 @@ async function list({ status, format }, command) {
 
         const plans = await fetchPausePlans(pause, { fromBlock, status });
         spinner.success("Done!");
+        if (plans.length === 0) {
+            console.log(chalk.yellow("No records to display."));
+            process.exit(1);
+        }
 
         if (format === "TABLE") {
             console.log(createTable(plans));
@@ -154,10 +158,6 @@ function createTable(plans) {
             colorize(event.status, event.eta),
             colorize(event.status),
         ]);
-
-    if (data.length === 0) {
-        return "No records to display.";
-    }
 
     data.unshift(
         ["GUY", "HASH", "USR", "TAG", "FAX", "ETA", "STATUS"].map((item) =>

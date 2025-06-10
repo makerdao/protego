@@ -40,19 +40,17 @@ program
     .showHelpAfterError()
     .addCommand(
         new Command("list")
-            .description(
-                "List pending spells by status",
-            )
+            .description("List pending spells by status")
             .addOption(
                 new Option("-s, --status <status>", "Filter by status")
                     .choices(["PENDING", "DROPPED", "EXECUTED", "ALL"])
                     .default(defaults.STATUS),
-            )            
+            )
             .addOption(
                 new Option("-f, --format <format>", "Output format")
                     .choices(["TABLE", "JSON"])
                     .default(defaults.FORMAT),
-            )                
+            )
             .action(list),
     )
     .addCommand(
@@ -73,8 +71,8 @@ program.parse();
  * @param {string} options.pauseAddress MCD_PAUSE contract address
  * @returns {Promise<void>}
  */
-async function list({ status, format }, command ) {
-    const { rpcUrl, fromBlock, pauseAddress } = command.parent.opts();    
+async function list({ status, format }, command) {
+    const { rpcUrl, fromBlock, pauseAddress } = command.parent.opts();
 
     if (rpcUrl === defaults.RPC_URL) {
         console.warn(
@@ -99,7 +97,7 @@ async function list({ status, format }, command ) {
         if (format === "TABLE") {
             console.log(createTable(plans));
         } else {
-            console.log(createJson(plans));
+            console.log(createJson(plans, 2));
         }
 
         process.exit(0);
@@ -204,11 +202,11 @@ function colorize(status, text = status) {
  * @param {import("./fetchPausePlans").PausePlan[]} plans
  * @returns {string}
  */
-function createJson(plans) {
+function createJson(plans, spaces = 0) {
     return JSON.stringify(
         plans,
         (_, v) => (typeof v === "bigint" ? v.toString() : v),
-        2,
+        spaces,
     );
 }
 
@@ -238,7 +236,10 @@ async function encode(localOptions, command) {
             ethers.getDefaultProvider(rpcUrl),
         );
 
-        const plans = await fetchPausePlans(pause, { fromBlock, status: "PENDING" });
+        const plans = await fetchPausePlans(pause, {
+            fromBlock,
+            status: "PENDING",
+        });
         spinner.success("Done!");
 
         if (plans.length === 0) {
@@ -264,7 +265,7 @@ async function encode(localOptions, command) {
             .map((plan) => [plan.usr, plan.tag, plan.fax, plan.eta.toString()]);
 
         console.log("\n Encoded plans:");
-        console.log(chalk.green(JSON.stringify(selectedPlans)));
+        console.log(chalk.green(createJson(selectedPlans)));
     } catch (error) {
         spinner.error("Failed!");
         console.error(chalk.red("An error occurred:", error));

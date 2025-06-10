@@ -13,11 +13,13 @@ This command lists spells based on the provided filters. It utilizes global opti
 **Usage Examples:**
 
 To list all `PENDING` spells from block `19420069` using default RPC and table format:
+
 ```bash
 npx @dewiz-xyz/protego@latest list --status PENDING --from-block 19420069
 ```
 
 To list `ALL` spells from the default block, using a custom RPC URL, and outputting in `JSON` format:
+
 ```bash
 npx @dewiz-xyz/protego@latest list --rpc-url <your-custom-rpc-url> --format JSON
 ```
@@ -48,6 +50,7 @@ Commands:
 ```
 
 **Command Options:**
+
 ```
 (Use `node --trace-warnings ...` to show where the warning was created)
 Usage: Protego CLI list [options]
@@ -272,3 +275,4 @@ node cli encode --from-block 19420069
 
 ```bash
 node cli --help
+```

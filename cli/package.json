@@ -2,6 +2,9 @@
   "type": "module",
   "name": "@dewiz-xyz/protego",
   "version": "0.2.1",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
   "exports": {
     ".": "./module.js"
   },

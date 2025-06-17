@@ -2,11 +2,6 @@
   "type": "module",
   "name": "@dewiz-xyz/protego",
   "version": "0.2.1",
-  "scripts": {
-    "help": "node --no-warnings list.js --help",
-    "list": "node --no-warnings list.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
-  },
   "exports": {
     ".": "./module.js"
   },

@@ -242,32 +242,24 @@ Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
 Get pending plans since block 19420069
 
 ```bash
-npm run cli -- list --status PENDING --from-block 19420069
-OR
 node cli list --status PENDING --from-block 19420069
 ```
 
 Get executed plans since block 19420069
 
 ```bash
-npm run cli -- list --status EXECUTED --from-block 19420069
-OR
 node cli list --status EXECUTED --from-block 19420069
 ```
 
 Get dropped plans since block 19420069
 
 ```bash
-npm run cli -- list --status DROPPED --from-block 19420069
-OR
 node cli list --status DROPPED --from-block 19420069
 ```
 
 Encode
 
 ```bash
-npm run cli -- encode --from-block 19420069
-OR
 node cli encode --from-block 19420069
 ```
 

@@ -63,7 +63,9 @@ Options:
   -h, --help             display help for command
 ```
 
-**Output:**
+Output can be a table for a quick glance at Spells or JSON: Better for copy and pasting into block explorers or transaction builders.
+
+**Output - Table (default):**
 
 ```
 ╔═══════════════════════╤═══════════════════════════════════╤═══════════════════════╤═══════════════════════════════════╤════════════╤════════════╤════════════╗
@@ -86,9 +88,34 @@ Options:
 ╚═══════════════════════╧═══════════════════════════════════╧═══════════════════════╧═══════════════════════════════════╧════════════╧════════════╧════════════╝
 ```
 
+**Output - JSON:**
+
+```
+[
+  {
+    "hash": "0xe1ee25b3818453fe9f283b7f11bf9ea6c21c062329c4fb86b7472e228fdece22",
+    "guy": "0x11378105b356039fC1C264019EF182EbE581e390",
+    "usr": "0x1AF95B825DCb36cf0fBB4Ff3cD05cf752B6BFD55",
+    "tag": "0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb",
+    "fax": "0xc0406226",
+    "eta": "1749170292",
+    "status": "PENDING"
+  },
+  {
+    "hash": "0x87721f1b7f036bce3eea2569dad5e3ff2932413ff2ae26a8dcece0fec55ba4ed",
+    "guy": "0x11378105b356039fC1C264019EF182EbE581e390",
+    "usr": "0x49cAA015f300949336fb3519e59C6a9b8401E1fB",
+    "tag": "0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb",
+    "fax": "0xc0406226",
+    "eta": "1749170292",
+    "status": "PENDING"
+  }
+]
+```
+
 The script outputs a table with the plans' details:
 
-- SPELL: Address of the spell (keep in mind this only works for compliant Spells, this field lists the plan scheduler address, which is the Spell on compliant spells, if non-compliant this field should be ignored)
+- GUY: Address of the spell (keep in mind this only works for compliant Spells, this field lists the plan scheduler address, which is the Spell on compliant spells, if non-compliant this field should be ignored)
 - HASH: Hash of the plan
 - USR: Address of the `DssSpellAction` related to the Spell
 - TAG: `extcodehash` from the address of `DssSpellAction`

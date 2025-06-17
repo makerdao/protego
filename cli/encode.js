@@ -49,7 +49,7 @@ export async function encode(localOptions, command) {
                 message:
                     "Select spells to be encoded for `drop(Plan[] calldata _plans)`",
                 choices: plans.map((plan) => ({
-                    title: `hash: ${plan.hash} | usr: ${plan.usr} | eta: ${plan.eta}`,
+                    title: `hash: ${plan.hash} | guy: ${plan.usr} | usr: ${plan.usr} | eta: ${plan.eta}`,
                     value: plan.hash,
                 })),
             },

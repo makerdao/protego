@@ -38,3 +38,25 @@ export function createJson(plans, spaces = 0) {
         spaces,
     );
 }
+
+/**
+ * Converts a Unix timestamp to human readable date
+ * @param {bigint} timestamp Unix timestamp
+ * @returns {string}
+ */
+export function formatDate(timestamp) {
+    const date = new Date(Number(timestamp) * 1000);
+
+    const datePart = date.toISOString().slice(0, 10);
+
+    const timeOptions = {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+        hour12: false,
+    };
+
+    const timePart = new Intl.DateTimeFormat("en-US", timeOptions).format(date);
+
+    return `${datePart} ${timePart} UTC`;
+}

@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { table } from "table";
 import { fetchPausePlans } from "./fetchPausePlans.js";
 import defaults from "./defaults.js";
-import { ttyOnlySpinner, createJson } from "./utils.js";
+import { ttyOnlySpinner, createJson, formatDate } from "./utils.js";
 
 /**
  * Runs the CLI list command
@@ -72,7 +72,7 @@ function createTable(plans) {
             colorize(event.status, event.usr),
             colorize(event.status, event.tag),
             colorize(event.status, event.fax),
-            colorize(event.status, event.eta),
+            colorize(event.status, formatDate(event.eta)),
             colorize(event.status),
         ]);
 

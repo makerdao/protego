@@ -2,16 +2,32 @@
 
 ## Usage
 
-### CLI
+### CLI Commands
+
+The Protego CLI supports the following commands:
+
+**1. `list` command**
+
+This command lists spells based on the provided filters. It utilizes global options (like `--rpc-url`, `--from-block`, `--pause-address`) for context and has its own specific options (`--status`, `--format`) to control its behavior.
+
+**Usage Examples:**
+
+To list all `PENDING` spells from block `19420069` using default RPC and table format:
+
+```bash
+npx @dewiz-xyz/protego@latest list --status PENDING --from-block 19420069
+```
+
+To list `ALL` spells from the default block, using a custom RPC URL, and outputting in `JSON` format:
+
+```bash
+npx @dewiz-xyz/protego@latest list --rpc-url <your-custom-rpc-url> --format JSON
+```
+
+**Global Options:**
 
 ```
-npx @dewiz-xyz/protego@latest [-V -h] | --rpc-url <rpc-url> [--from-block 19420069] [--status PENDING] [--pause-address <addr>] [--format TABLE]
-```
-
-All options:
-
-```
-Usage: Protego CLI [options]
+Usage: Protego CLI [options] [command]
 
   ____                   _
  |  _ \   _ __    ___   | |_    ___    __ _    ___
@@ -22,47 +38,87 @@ Usage: Protego CLI [options]
 
 Options:
   -V, --version                    output the version number
-  -r, --rpc-url <rpc-url>          Ethereum Node RPC URL (default: "https://mainnet.gateway.tenderly.co",
-                                                          env: ETH_RPC_URL)
+  -r, --rpc-url <rpc-url>          Ethereum Node RPC URL (default: "https://mainnet.gateway.tenderly.co", env: ETH_RPC_URL)
   -b, --from-block <block-number>  Display spells from a given block (default: 0)
-  -s, --status <status>            Filter by status (choices: "PENDING", "DROPPED", "EXECUTED", "ALL", default: "ALL")
   --pause-address <address>        MCD_PAUSE contract address (default: "0xbE286431454714F511008713973d3B053A2d38f3")
-  -f, --format <format>            Output format (choices: "TABLE", "JSON", default: "TABLE")
   -h, --help                       display help for command
+
+Commands:
+  list [options]                   List pending spells by status
+  encode                           Encode calldata to cancel Spells (Etherscan/Tenderly input)
+  help [command]                   display help for command
 ```
 
-#### Output
+**Command Options:**
+
+```
+(Use `node --trace-warnings ...` to show where the warning was created)
+Usage: Protego CLI list [options]
+
+List pending spells by status
+
+Options:
+  -s, --status <status>  Filter by status (choices: "PENDING", "DROPPED", "EXECUTED", "ALL", default: "ALL")
+  -f, --format <format>  Output format (choices: "TABLE", "JSON", default: "TABLE")
+  -h, --help             display help for command
+```
+
+Output can be a table for a quick glance at Spells or JSON: Better for copy and pasting into block explorers or transaction builders.
+
+**Output - Table (default):**
 
 ```
 ╔═══════════════════════╤═══════════════════════════════════╤═══════════════════════╤═══════════════════════════════════╤════════════╤════════════╤════════════╗
-║ SPELL                 │ HASH                              │ USR                   │ TAG                               │ FAX        │ ETA        │ STATUS     ║
+║ GUY                   │ HASH                              │ USR                   │ TAG                               │ FAX        │ ETA        │ STATUS     ║
 ╟───────────────────────┼───────────────────────────────────┼───────────────────────┼───────────────────────────────────┼────────────┼────────────┼────────────╢
-║ 0xc25A71BDF956229a035 │ 0x76167df75647db1661a3a49b83e589e │ 0xb1F78B20B3aAfdF061b │ 0xd5b5512ac3872a37517151f280f9b9f │ 0x61461954 │ 1723728263 │ EXECUTED   ║
-║ e35e8038d3FeE4aBa101C │ 9daaff46af3337552e15eb80ea8acf79f │ 0E85f2D3009c436764294 │ 3f37191196b05620d19af0f3c24f55b2e │            │            │            ║
+║ 0x11378105b356039fC1C │ 0xe1ee25b3818453fe9f283b7f11bf9ea │ 0x1AF95B825DCb36cf0fB │ 0xb00835271ba99b9695e8413dbc40cf5 │ 0xc0406226 │ 2025-06-06 │ PENDING    ║
+║ 264019EF182EbE581e390 │ 6c21c062329c4fb86b7472e228fdece22 │ B4Ff3cD05cf752B6BFD55 │ 784d5bd971d38f0a085e60407eb61accb │            │ 00:38 UTC  │            ║
 ╟───────────────────────┼───────────────────────────────────┼───────────────────────┼───────────────────────────────────┼────────────┼────────────┼────────────╢
-║ 0x8c7F12C7cE07916f631 │ 0x1e4a20372c4647e9428efabca662d47 │ 0x46DD85e91Eab604ca15 │ 0x54561a83a0e6eb1959742ac526aeaa0 │ 0x61461954 │ 1722371399 │ EXECUTED   ║
-║ B25ce148e419FeFf19d46 │ 59f996f1353d2dcb05d52ed50def420f0 │ 0c26853a947617e7Ab322 │ 2e1d074fbbb8e26294b2a46a508c3ccf3 │            │            │            ║
+║ 0x11378105b356039fC1C │ 0x87721f1b7f036bce3eea2569dad5e3f │ 0x49cAA015f300949336f │ 0xb00835271ba99b9695e8413dbc40cf5 │ 0xc0406226 │ 2025-06-06 │ PENDING    ║
+║ 264019EF182EbE581e390 │ f2932413ff2ae26a8dcece0fec55ba4ed │ b3519e59C6a9b8401E1fB │ 784d5bd971d38f0a085e60407eb61accb │            │ 00:38 UTC  │            ║
 ╟───────────────────────┼───────────────────────────────────┼───────────────────────┼───────────────────────────────────┼────────────┼────────────┼────────────╢
-║ 0x452a39C34f9539E0d50 │ 0x11e3af57c6821e4b4b45559c92f5c9d │ 0xA13D7e21643bD46E2cC │ 0x041f68b86ef5961f3d578a7192a09f1 │ 0x61461954 │ 1721070179 │ EXECUTED   ║
-║ C9e33Ad423a15C6f45df4 │ a681f2b7d2d232f91d7b64aa14d317f6a │ 09E87cFB91c5B951Bd955 │ 980b42bcefa8fecb810816369420c1e0c │            │            │            ║
-╟───────────────────────┼───────────────────────────────────┼───────────────────────┼───────────────────────────────────┼────────────┼────────────┼────────────╢
-║ 0x0c0B4DA7e02960F98c2 │ 0xb8f4b59cbfe45ba425eb9c10c8a50bd │ 0x0871e28D09c29C41966 │ 0xc8dec11fc102e8810674c4db724fb12 │ 0x61461954 │ 1720383443 │ EXECUTED   ║
-║ AFf2778F6f3E37321B5Dd │ 1eb919325eefdf095c44369098fd21e59 │ 9D82901d53d60A649B36D │ 9a790f93767cf54b691cbe3d2d33dd3d8 │            │            │            ║
-╟───────────────────────┼───────────────────────────────────┼───────────────────────┼───────────────────────────────────┼────────────┼────────────┼────────────╢
-║ 0x7fbC867dE58D6e47E43 │ 0x9ca00512f5e87da33fa1fa1e4834581 │ 0x261da1Cdbd788642034 │ 0x5e8fe783452994a42bbbe3b0edde5b9 │ 0x61461954 │ 1719777527 │ EXECUTED   ║
-║ 0eB257B50481F6E878f65 │ c8684ebd9091c7883355ea0ca959a78f2 │ 288B6574d749198FDf75b │ 901ff6bd7561b680b42af92293206bb32 │            │            │            ║
-╟───────────────────────┼───────────────────────────────────┼───────────────────────┼───────────────────────────────────┼────────────┼────────────┼────────────╢
-║ 0x622Ad624491a01a2a6b │ 0xd37c72ea00f67c76b6cda8dc0dda0b1 │ 0x6481e7443D321fFF02A │ 0xf218b00aeb30403e97dbedd8542caf1 │ 0x61461954 │ 1718481719 │ EXECUTED   ║
-║ eAD916C3Ca3B90BcA0854 │ b6f825145079e9acd23bdbcfe00259a3e │ 9A7ae883DCd13FAb64Ef7 │ a879c0e15796a20b5836cfadfe9a69b43 │            │            │            ║
-╟───────────────────────┼───────────────────────────────────┼───────────────────────┼───────────────────────────────────┼────────────┼────────────┼────────────╢
-║ 0x7B55617f7F04F7B45eE │ 0x2eb42ca4e054352eaa8ef09705925b3 │ 0x612938f231DFcd7F921 │ 0x25f5bbaef576d0cf62af933ec55a6bd │ 0x61461954 │ 1717623383 │ EXECUTED   ║
-║ 865fF9066469Fbe28a632 │ c12b4c0d1a59a050a20baa2b9d44396a8 │ 81F11C9E0B575E7ed2Ec1 │ 468b65fa9902387040283da6bf88ea4a9 │            │            │            ║
+║ 0x11378105b356039fC1C │ 0x90ca92f96501046e518674ce0a37db5 │ 0xA2D8880a9Fc34E40108 │ 0xb00835271ba99b9695e8413dbc40cf5 │ 0xc0406226 │ 2025-06-06 │ PENDING    ║
+║ 264019EF182EbE581e390 │ 3e2bd7e3d726df37bea4c7c8c04688ccb │ d5144Bc3e79a1Deb32b05 │ 784d5bd971d38f0a085e60407eb61accb │            │ 00:38 UTC  │            ║
 ╚═══════════════════════╧═══════════════════════════════════╧═══════════════════════╧═══════════════════════════════════╧════════════╧════════════╧════════════╝
+```
+
+**Output - JSON:**
+
+```
+[
+  {
+    "hash": "0xe1ee25b3818453fe9f283b7f11bf9ea6c21c062329c4fb86b7472e228fdece22",
+    "guy": "0x11378105b356039fC1C264019EF182EbE581e390",
+    "usr": "0x1AF95B825DCb36cf0fBB4Ff3cD05cf752B6BFD55",
+    "tag": "0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb",
+    "fax": "0xc0406226",
+    "eta": "1749170292",
+    "status": "PENDING"
+  },
+  {
+    "hash": "0x87721f1b7f036bce3eea2569dad5e3ff2932413ff2ae26a8dcece0fec55ba4ed",
+    "guy": "0x11378105b356039fC1C264019EF182EbE581e390",
+    "usr": "0x49cAA015f300949336fb3519e59C6a9b8401E1fB",
+    "tag": "0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb",
+    "fax": "0xc0406226",
+    "eta": "1749170292",
+    "status": "PENDING"
+  },
+  {
+    "hash": "0x90ca92f96501046e518674ce0a37db53e2bd7e3d726df37bea4c7c8c04688ccb",
+    "guy": "0x11378105b356039fC1C264019EF182EbE581e390",
+    "usr": "0xA2D8880a9Fc34E40108d5144Bc3e79a1Deb32b05",
+    "tag": "0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb",
+    "fax": "0xc0406226",
+    "eta": "1749170292",
+    "status": "PENDING"
+  }
+]
 ```
 
 The script outputs a table with the plans' details:
 
-- SPELL: Address of the spell (keep in mind this only works for compliant Spells, this field lists the plan scheduler address, which is the Spell on compliant spells, if non-compliant this field should be ignored)
+- GUY: Address of the spell (keep in mind this only works for compliant Spells, this field lists the plan scheduler address, which is the Spell on compliant spells, if non-compliant this field should be ignored)
 - HASH: Hash of the plan
 - USR: Address of the `DssSpellAction` related to the Spell
 - TAG: `extcodehash` from the address of `DssSpellAction`
@@ -72,6 +128,65 @@ The script outputs a table with the plans' details:
   - PENDING: The plan has been plotted (scheduled) on Pause, and is pending execution
   - EXECUTED: The plan has already been executed
   - DROPPED: The plan was scheduled and subsequently dropped
+
+**2. `encode`**
+
+The `encode` command helps users generate the necessary calldata to cancel pending spells using the `drop(Plan[] calldata _plans)` function, typically on platforms like Etherscan or Tenderly.
+
+It fetches all `PENDING` spells based on the global options provided (like `--rpc-url`, `--from-block`, `--pause-address`) and then interactively prompts the user to select which spells they want to encode for cancellation.
+
+**Usage:**
+
+```bash
+npx @dewiz-xyz/protego@latest encode [global options]
+# or when running locally
+node cli encode [global options]
+```
+
+Global options are the same as for the default command (e.g., `--rpc-url`, `--from-block`).
+
+**Example:**
+
+To encode pending spells using default RPC and from the default block:
+
+```bash
+node cli encode
+```
+
+To encode pending spells using a specific RPC and from block `19500000`:
+
+```bash
+node cli encode --rpc-url <your-rpc-url> --from-block 19500000
+```
+
+```
+? Select spells to be encoded for `drop(Plan[] calldata _plans)` ›
+Instructions:
+    ↑/↓: Highlight option
+    ←/→/[space]: Toggle selection
+    a: Toggle all
+    enter/return: Complete answer
+◯   hash: 0xe1ee...ce22 | guy: 0x1AF9...FD55 | usr: 0x1AF9...FD55 | eta: 1749170292 (2025-06-06 00:38 UTC)
+◉   hash: 0x8772...a4ed | guy: 0x49cA...E1fB | usr: 0x49cA...E1fB | eta: 1749170292 (2025-06-06 00:38 UTC)
+◉   hash: 0xe163...d5f2 | guy: 0x0c5f...e590 | usr: 0x0c5f...e590 | eta: 1749170292 (2025-06-06 00:38 UTC)
+◯   hash: 0x27e4...1e92 | guy: 0x36B7...e359 | usr: 0x36B7...e359 | eta: 1749170292 (2025-06-06 00:38 UTC)
+◯   hash: 0x5220...981b | guy: 0x003E...23b6 | usr: 0x003E...23b6 | eta: 1749170292 (2025-06-06 00:38 UTC)
+◯   hash: 0xa67e...35e2 | guy: 0xbbaC...087b | usr: 0xbbaC...087b | eta: 1749170292 (2025-06-06 00:38 UTC)
+◯   hash: 0x16b4...c16f | guy: 0x59d1...5986 | usr: 0x59d1...5986 | eta: 1749170292 (2025-06-06 00:38 UTC)
+◯   hash: 0x90ca...8ccb | guy: 0xA2D8...2b05 | usr: 0xA2D8...2b05 | eta: 1749170292 (2025-06-06 00:38 UTC)
+```
+
+**Output:**
+
+After selecting the spells, the command will output a JSON array. Each element in the array is another array representing a plan, formatted as `[usr, tag, fax, eta]`.
+
+Example output:
+
+```
+[["0x49cAA015f300949336fb3519e59C6a9b8401E1fB","0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb","0xc0406226","1749170292"],["0x0c5fb8D0addBd19258BDbD9221D3F87D294Be590","0xb00835271ba99b9695e8413dbc40cf5784d5bd971d38f0a085e60407eb61accb","0xc0406226","1749170292"]]
+```
+
+This output can be directly used as the `_plans` parameter for the `drop` function.
 
 ### As a dependency
 
@@ -129,11 +244,11 @@ npm i
 List plans in `MCD_PAUSE` since block 16420000
 
 ```bash
-npm run cli -- --from-block 16420000
+npm run cli -- list --from-block 16420000
 
 OR
 
-node cli --from-block 16420000
+node cli list --from-block 16420000
 ```
 
 Filter by status with `--status` flag.
@@ -142,25 +257,25 @@ Possible values are: `PENDING`, `EXECUTED`, `DROPPED` and `ALL` (default).
 Get pending plans since block 19420069
 
 ```bash
-npm run cli -- --status PENDING --from-block 19420069
-OR
-node cli --status PENDING --from-block 19420069
+node cli list --status PENDING --from-block 19420069
 ```
 
 Get executed plans since block 19420069
 
 ```bash
-npm run cli -- --status EXECUTED --from-block 19420069
-OR
-node cli --status EXECUTED --from-block 19420069
+node cli list --status EXECUTED --from-block 19420069
 ```
 
 Get dropped plans since block 19420069
 
 ```bash
-npm run cli -- --status DROPPED --from-block 19420069
-OR
-node cli --status DROPPED --from-block 19420069
+node cli list --status DROPPED --from-block 19420069
+```
+
+Encode
+
+```bash
+node cli encode --from-block 19420069
 ```
 
 ### 3. Help

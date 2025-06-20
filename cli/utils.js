@@ -60,3 +60,20 @@ export function formatDate(timestamp) {
 
     return `${datePart} ${timePart} UTC`;
 }
+
+/**
+ * Formats hex strings (address, bytes32) into a shorter format including just four initial and final chars
+ * @param {string} hex Hex string
+ * @returns {string}
+ */
+export function formatHex(string) {
+    if (typeof string !== "string" || !string.startsWith("0x")) {
+        return string;
+    }
+
+    if (string.length <= 10) {
+        return string;
+    }
+
+    return `${string.slice(0, 6)}...${string.slice(-4)}`;
+}

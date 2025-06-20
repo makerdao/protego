@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import prompts from "prompts";
 import { fetchPausePlans } from "./fetchPausePlans.js";
 import defaults from "./defaults.js";
-import { ttyOnlySpinner, createJson, formatDate } from "./utils.js";
+import { ttyOnlySpinner, createJson, formatDate, formatHex } from "./utils.js";
 
 /**
  * Runs the CLI Encode command
@@ -49,7 +49,7 @@ export async function encode(localOptions, command) {
                 message:
                     "Select spells to be encoded for `drop(Plan[] calldata _plans)`",
                 choices: plans.map((plan) => ({
-                    title: `hash: ${plan.hash} | guy: ${plan.usr} | usr: ${plan.usr} | eta: ${plan.eta} (${formatDate(plan.eta)})`,
+                    title: `hash: ${formatHex(plan.hash)} | guy: ${formatHex(plan.usr)} | usr: ${formatHex(plan.usr)} | eta: ${plan.eta} (${formatDate(plan.eta)})`,
                     value: plan.hash,
                 })),
             },
